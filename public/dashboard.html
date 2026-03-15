@@ -1081,46 +1081,31 @@ const ppColor=v=>v>=70?'var(--aya-green)':v>=50?'var(--aya-yellow)':'var(--aya-r
 
 function renderDash(){
   const sala=document.getElementById('dashSala')?.value||'';
-
-  // FONTE DA VERDADE: PEI CHAMADA com SED=ATIVO
-  // Aguardar allChamada — nunca usar active() como fallback para total
-  if(allChamada.length === 0){ setTimeout(renderDash, 500); return; }
-  let ativos = allChamada;
-  if(sala) ativos = ativos.filter(s=>s.sala===sala);
-
-  // Total e salas
-  const total = ativos.length;
-  document.getElementById('dTotal').textContent = total;
-  document.getElementById('dashSub').textContent = `${total} alunos${sala?' · Sala '+sala:''}`;
-  const salas=[...new Set(ativos.map(s=>s.sala).filter(Boolean))].sort();
+  let b=active();if(sala)b=b.filter(s=>s.sala===sala);
+  // Total vem da PEI CHAMADA (SED=ATIVO)
+  const totalReal = allChamada.length > 0 ? (sala ? allChamada.filter(s=>s.sala===sala).length : allChamada.length) : b.length;
+  document.getElementById('dTotal').textContent=totalReal;
+  const salas=[...new Set(b.map(s=>s.sala).filter(Boolean))];
   document.getElementById('dSalas').textContent=salas.length;
   document.getElementById('dSalasD').textContent=salas.slice(0,6).join(' · ')+(salas.length>6?'...':'');
-
-  // PP3 — usa allS (PEI 2024) pois só lá tem as notas
-  let bPP=active();if(sala)bPP=bPP.filter(s=>s.sala===sala);
-  const wp3=bPP.filter(s=>s.pp3!=null);
+  document.getElementById('dashSub').textContent=`${totalReal} alunos${sala?' · Sala '+sala:''}`;
+  const wp3=b.filter(s=>s.pp3!=null);
   const avg=wp3.length?(wp3.reduce((a,c)=>a+c.pp3,0)/wp3.length).toFixed(1):'—';
   document.getElementById('dPP3').textContent=avg!=='—'?avg+'%':'—';
-  const at=bPP.filter(s=>s.pp3!=null&&s.pp3<50);
+  const at=b.filter(s=>s.pp3!=null&&s.pp3<50);
   document.getElementById('dAtencao').textContent=at.length;
-
-  // Sexo — usa allS pois só lá tem o campo SEXO
-  const m=bPP.filter(s=>s.sexo==='MASCULINO').length,f=bPP.filter(s=>s.sexo==='FEMININO').length;
+  const m=b.filter(s=>s.sexo==='MASCULINO').length,f=b.filter(s=>s.sexo==='FEMININO').length;
   document.getElementById('dTotalD').textContent=`${m} masc. · ${f} fem.`;
-
-  // Barras salas — usa PEI CHAMADA (ativos)
-  const sc={};ativos.forEach(s=>{if(s.sala)sc[s.sala]=(sc[s.sala]||0)+1;});
+  // Barras salas
+  const sc={};b.forEach(s=>{if(s.sala)sc[s.sala]=(sc[s.sala]||0)+1;});
   const mx=Math.max(...Object.values(sc),1);
   document.getElementById('barSalas').innerHTML=Object.entries(sc).sort().map(([sala,cnt],i)=>`<div class="bar-row"><div class="bar-lbl">${sala}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt/mx*100)}%;background:${BAR_COLORS[i%BAR_COLORS.length]}">${cnt}</div></div></div>`).join('')||'<div class="empty">Sem dados</div>';
-
-  // Pie sexo
-  const tot=bPP.length||1;const mp=m/tot*100,fp=f/tot*100;
+  // Pie
+  const tot=b.length||1;const mp=m/tot*100,fp=f/tot*100;
   document.getElementById('pieM').setAttribute('stroke-dasharray',`${mp} ${100-mp}`);
   document.getElementById('pieF').setAttribute('stroke-dasharray',`${fp} ${100-fp}`);
   document.getElementById('pieF').setAttribute('stroke-dashoffset',`${25+(100-mp)}`);
   document.getElementById('pieLeg').innerHTML=`<div class="leg-row"><div class="leg-dot" style="background:var(--aya-blue)"></div>${m} Masc. (${Math.round(mp)}%)</div><div class="leg-row"><div class="leg-dot" style="background:var(--aya-red)"></div>${f} Fem. (${Math.round(fp)}%)</div>`;
-
-  // Alertas PP3
   renderDashFreq();
   document.getElementById('alertList').innerHTML=at.slice(0,10).map(s=>`<div class="alert-row"><div class="alert-indicator"></div><div><div class="alert-name">${s.name}</div><div class="alert-sub">Sala ${s.sala} · Chamada nº${s.chamada}</div></div><div class="alert-pp">${s.pp3}%</div></div>`).join('')||'<div class="empty">✅ Nenhum aluno com PP3 abaixo de 50%</div>';
 }
