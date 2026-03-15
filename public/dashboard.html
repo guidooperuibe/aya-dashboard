@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<!-- saved from url=(0055)file:///C:/Users/Windows/Downloads/aya-dashboard_7.html -->
-<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AYA Dashboard</title>
-<link href="./AYA Dashboard_files/css2" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   /* Cores do logo */
@@ -518,12 +519,12 @@ tr:hover td { background:var(--surface2); }
   <div class="aya-logo-svg">
     <!-- Logo M do AYA animado -->
     <svg width="54" height="48" viewBox="0 0 54 48" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="0,48 0,0 10,0 27,28 44,0 54,0 54,48 44,48 44,16 27,44 10,16 10,48" fill="none"></polygon>
+      <polygon points="0,48 0,0 10,0 27,28 44,0 54,0 54,48 44,48 44,16 27,44 10,16 10,48" fill="none"/>
       <!-- M com 4 cores -->
-      <polygon points="0,48 10,0 14,0 5,48" fill="#E8273A" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0s" fill="freeze"></animate></polygon>
-      <polygon points="10,0 27,28 20,28 7,0" fill="#2BA8E0" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0.1s" fill="freeze"></animate></polygon>
-      <polygon points="27,28 44,0 47,0 34,28" fill="#F5D800" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0.2s" fill="freeze"></animate></polygon>
-      <polygon points="44,0 54,0 54,48 44,48" fill="#1DB954" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0.3s" fill="freeze"></animate></polygon>
+      <polygon points="0,48 10,0 14,0 5,48" fill="#E8273A" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0s" fill="freeze"/></polygon>
+      <polygon points="10,0 27,28 20,28 7,0" fill="#2BA8E0" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0.1s" fill="freeze"/></polygon>
+      <polygon points="27,28 44,0 47,0 34,28" fill="#F5D800" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0.2s" fill="freeze"/></polygon>
+      <polygon points="44,0 54,0 54,48 44,48" fill="#1DB954" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="0.3s" fill="freeze"/></polygon>
     </svg>
   </div>
   <div class="aya-spinner">
@@ -539,7 +540,7 @@ tr:hover td { background:var(--surface2); }
     <div class="login-brand">
       <!-- Logo M reconstruído fiel ao original -->
       <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="100" cy="100" r="100" fill="#3A3A3A"></circle>
+        <circle cx="100" cy="100" r="100" fill="#3A3A3A"/>
         <!--
           Estrutura real do M original:
           - Perna esq:  vertical, larga, VERMELHA
@@ -549,15 +550,15 @@ tr:hover td { background:var(--surface2); }
           - Perna dir: vertical, larga, VERDE
         -->
         <!-- 1. Perna esquerda vermelha (vertical, larga) -->
-        <rect x="28" y="42" width="30" height="118" fill="#E8273A"></rect>
+        <rect x="28" y="42" width="30" height="118" fill="#E8273A"/>
         <!-- 2. Diagonal azul: do topo esquerdo até o vértice central -->
-        <polygon points="28,42 58,42 104,124 74,124" fill="#2BA8E0"></polygon>
+        <polygon points="28,42 58,42 104,124 74,124" fill="#2BA8E0"/>
         <!-- 3. Perna direita verde (vertical, larga) -->
-        <rect x="142" y="42" width="30" height="118" fill="#1DB954"></rect>
+        <rect x="142" y="42" width="30" height="118" fill="#1DB954"/>
         <!-- 4. Diagonal verde: do topo direito até o vértice central -->
-        <polygon points="172,42 142,42 96,124 126,124" fill="#1DB954"></polygon>
+        <polygon points="172,42 142,42 96,124 126,124" fill="#1DB954"/>
         <!-- 5. Losango amarelo no centro (vértice do M) -->
-        <polygon points="74,124 100,156 126,124 100,92" fill="#F5D800"></polygon>
+        <polygon points="74,124 100,156 126,124 100,92" fill="#F5D800"/>
       </svg>
       <div class="login-brand-name">AYA DASHBOARD</div>
       <div class="login-brand-sub">SISTEMA DE GESTÃO ESCOLAR</div>
@@ -569,8 +570,16 @@ tr:hover td { background:var(--surface2); }
       <div class="login-perf-item"><div class="perf-dot" style="background:var(--aya-blue)"></div>Professores — turmas e chamada</div>
       <div class="login-perf-item"><div class="perf-dot" style="background:var(--aya-green)"></div>Funcionários — operacional</div>
       <!-- Botão Tirar Dúvidas no lado esquerdo -->
-      <a href="file:///C:/Users/Windows/Downloads/COLE_AQUI_A_URL_DA_SUA_PAGINA" target="_blank" style="text-decoration:none;margin-top:6px;display:block">
-        <div class="login-perf-item" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 10px; cursor: pointer; transition: background 0.18s; color: rgb(255, 255, 255); font-weight: 700;" onmouseover="this.style.background=&#39;rgba(255,255,255,0.16)&#39;" onmouseout="this.style.background=&#39;rgba(255,255,255,0.08)&#39;">
+      <a href="COLE_AQUI_A_URL_DA_SUA_PAGINA" target="_blank" style="text-decoration:none;margin-top:6px;display:block">
+        <div class="login-perf-item" style="
+          background:rgba(255,255,255,0.08);
+          border:1px solid rgba(255,255,255,0.5);
+          border-radius:10px;
+          cursor:pointer;
+          transition:background .18s;
+          color:#FFFFFF;
+          font-weight:700;
+        " onmouseover="this.style.background='rgba(255,255,255,0.16)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
           <div class="perf-dot" style="background:#FFFFFF"></div>
           💬 Tirar Dúvidas
         </div>
@@ -583,17 +592,17 @@ tr:hover td { background:var(--surface2); }
     <div class="login-form-sub">Selecione seu perfil e entre com suas credenciais</div>
 
     <div class="profile-selector">
-      <button class="profile-btn" id="btnGestao" style="--p-color:var(--aya-red);--p-dim:var(--gestao-dim)" onclick="selPerfil(&#39;gestao&#39;)">
+      <button class="profile-btn" id="btnGestao" style="--p-color:var(--aya-red);--p-dim:var(--gestao-dim)" onclick="selPerfil('gestao')">
         <div class="profile-icon">🏛️</div>
         <div class="profile-info"><div class="profile-name">Gestão</div><div class="profile-desc">Direção e Coordenação</div></div>
         <div class="profile-check" id="ckGestao"></div>
       </button>
-      <button class="profile-btn" id="btnProfessores" style="--p-color:var(--aya-blue);--p-dim:var(--prof-dim)" onclick="selPerfil(&#39;professores&#39;)">
+      <button class="profile-btn" id="btnProfessores" style="--p-color:var(--aya-blue);--p-dim:var(--prof-dim)" onclick="selPerfil('professores')">
         <div class="profile-icon">👨‍🏫</div>
         <div class="profile-info"><div class="profile-name">Professores</div><div class="profile-desc">Corpo docente</div></div>
         <div class="profile-check" id="ckProfessores"></div>
       </button>
-      <button class="profile-btn" id="btnFuncionarios" style="--p-color:var(--aya-green);--p-dim:var(--func-dim)" onclick="selPerfil(&#39;funcionarios&#39;)">
+      <button class="profile-btn" id="btnFuncionarios" style="--p-color:var(--aya-green);--p-dim:var(--func-dim)" onclick="selPerfil('funcionarios')">
         <div class="profile-icon">🔧</div>
         <div class="profile-info"><div class="profile-name">Funcionários</div><div class="profile-desc">Equipe administrativa</div></div>
         <div class="profile-check" id="ckFuncionarios"></div>
@@ -606,13 +615,13 @@ tr:hover td { background:var(--surface2); }
     </div>
     <div class="login-field">
       <label class="login-label">Senha</label>
-      <input type="password" class="login-input" id="loginPwd" placeholder="Sua senha" autocomplete="current-password" onkeydown="if(event.key===&#39;Enter&#39;)doLogin()">
+      <input type="password" class="login-input" id="loginPwd" placeholder="Sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="login-btn" id="loginBtn" onclick="doLogin()"><span>ENTRAR →</span></button>
     <div class="login-error" id="loginErr">Usuário ou senha incorretos.</div>
 
     <div class="server-section">
-      <button class="server-toggle" onclick="document.getElementById(&#39;srvFields&#39;).classList.toggle(&#39;open&#39;)">⚙️ Configurar servidor</button>
+      <button class="server-toggle" onclick="document.getElementById('srvFields').classList.toggle('open')">⚙️ Configurar servidor</button>
       <div class="server-fields" id="srvFields">
         <div class="login-field" style="margin-top:12px">
           <label class="login-label">URL Render.com</label>
@@ -630,12 +639,12 @@ tr:hover td { background:var(--surface2); }
   <div class="topbar">
     <div class="topbar-logo">
       <svg width="44" height="44" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="100" cy="100" r="100" fill="#3A3A3A"></circle>
-        <rect x="28" y="42" width="30" height="118" fill="#E8273A"></rect>
-        <polygon points="28,42 58,42 104,124 74,124" fill="#2BA8E0"></polygon>
-        <rect x="142" y="42" width="30" height="118" fill="#1DB954"></rect>
-        <polygon points="172,42 142,42 96,124 126,124" fill="#1DB954"></polygon>
-        <polygon points="74,124 100,156 126,124 100,92" fill="#F5D800"></polygon>
+        <circle cx="100" cy="100" r="100" fill="#3A3A3A"/>
+        <rect x="28" y="42" width="30" height="118" fill="#E8273A"/>
+        <polygon points="28,42 58,42 104,124 74,124" fill="#2BA8E0"/>
+        <rect x="142" y="42" width="30" height="118" fill="#1DB954"/>
+        <polygon points="172,42 142,42 96,124 126,124" fill="#1DB954"/>
+        <polygon points="74,124 100,156 126,124 100,92" fill="#F5D800"/>
       </svg>
       <div class="topbar-brand">AYA DASHBOARD</div>
     </div>
@@ -689,8 +698,30 @@ tr:hover td { background:var(--surface2); }
                 <option value="">— selecione a data —</option>
               </select>
             </div>
-            <!-- Legenda -->
-            <div style="display:flex;gap:16px;margin-bottom:14px;font-size:11px;font-weight:700;">
+            <!-- Pizza geral de presença -->
+            <div id="dashFreqPizzaWrap" style="display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+              <div style="position:relative;width:110px;height:110px;flex-shrink:0">
+                <svg width="110" height="110" viewBox="0 0 42 42" style="transform:rotate(-90deg)">
+                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#4c1d95" stroke-width="9"/>
+                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#7c3aed" stroke-width="9"
+                    stroke-dasharray="0 100" id="freqPiePresente" stroke-dashoffset="0"/>
+                </svg>
+                <div id="freqPiePct" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#c4b5fd;line-height:1">—</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700">
+                  <span style="width:12px;height:12px;border-radius:3px;background:#7c3aed;display:inline-block;flex-shrink:0"></span>
+                  <span>Presentes: <span id="freqPieNPresentes" style="color:#c4b5fd;font-size:16px">—</span></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700">
+                  <span style="width:12px;height:12px;border-radius:3px;background:#ddd6fe;display:inline-block;flex-shrink:0"></span>
+                  <span>Faltosos: <span id="freqPieNFaltosos" style="color:#a78bfa;font-size:16px">—</span></span>
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px">Total: <span id="freqPieTotal">—</span> alunos</div>
+              </div>
+            </div>
+            <!-- Legenda barras -->
+            <div style="display:flex;gap:16px;margin-bottom:10px;font-size:11px;font-weight:700;">
               <span style="display:flex;align-items:center;gap:6px">
                 <span style="width:12px;height:12px;border-radius:3px;background:#7c3aed;display:inline-block"></span>Presentes
               </span>
@@ -707,9 +738,9 @@ tr:hover td { background:var(--surface2); }
           <div class="panel-title">🚻 Distribuição por Sexo</div>
           <div class="pie-wrap">
             <svg class="pie-svg" viewBox="0 0 42 42">
-              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#303030" stroke-width="9"></circle>
-              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--aya-blue)" stroke-width="9" stroke-dasharray="0 100" id="pieM" stroke-dashoffset="25"></circle>
-              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--aya-red)" stroke-width="9" stroke-dasharray="0 100" id="pieF" stroke-dashoffset="25"></circle>
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#303030" stroke-width="9"/>
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--aya-blue)"   stroke-width="9" stroke-dasharray="0 100" id="pieM" stroke-dashoffset="25"/>
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--aya-red)"    stroke-width="9" stroke-dasharray="0 100" id="pieF" stroke-dashoffset="25"/>
             </svg>
             <div class="pie-leg" id="pieLeg"></div>
           </div>
@@ -782,8 +813,8 @@ tr:hover td { background:var(--surface2); }
         <div class="pg-header">
           <div><div class="pg-title">ALUNOS</div><div class="pg-sub">Cadastro completo</div></div>
           <div class="pg-controls">
-            <select class="ctrl-sel" id="aluSala" onchange="renderAlunos()"><option value="">Todas as salas</option></select>
-            <select class="ctrl-sel" id="aluSexo" onchange="renderAlunos()"><option value="">Todos</option><option value="MASCULINO">Masculino</option><option value="FEMININO">Feminino</option></select>
+            <select class="ctrl-sel" id="aluSala"  onchange="renderAlunos()"><option value="">Todas as salas</option></select>
+            <select class="ctrl-sel" id="aluSexo"  onchange="renderAlunos()"><option value="">Todos</option><option value="MASCULINO">Masculino</option><option value="FEMININO">Feminino</option></select>
           </div>
         </div>
         <div class="panel">
@@ -1144,20 +1175,49 @@ async function loadChamadaData() {
   try {
     const raw = await fetchAll('tblKcFjBKyQYPew8i');
     allChamada = raw.map(r => {
-      const f = r.fields || r.cellValuesByFieldId || {};
-      const gs = (n) => { const v = f[n]; if (!v) return ''; return typeof v === 'object' && v.name ? v.name : String(v); };
-      const base = {
-        name: (gs('Name') || gs('fldX4StGQ7R3CGA3k') || '').trim().replace(/\n/g,''),
-        sala: gs('SALAS') || gs('fld5ZEt3D5TiWrlmo'),
-        chamada: f['CHAMADA'] || f['fldLR3CxOz1jZHRN5'] || '',
+      // A API retorna cellValuesByFieldId — suportar ambos os formatos
+      const fid = r.cellValuesByFieldId || {};
+      const f   = r.fields || {};
+
+      const gv = (fieldId, fieldName) => {
+        // Tenta pelo ID primeiro, depois pelo nome
+        let v = fid[fieldId];
+        if (v === undefined) v = f[fieldName];
+        if (v === undefined) return null;
+        return v;
       };
-      // Mapear cada data
+      const gs = (fieldId, fieldName) => {
+        const v = gv(fieldId, fieldName);
+        if (!v) return '';
+        return typeof v === 'object' && v.name ? v.name : String(v);
+      };
+
+      const base = {
+        name:    (gv('fldX4StGQ7R3CGA3k', 'Name') || '').toString().trim().replace(/\n/g,''),
+        sala:     gs('fld5ZEt3D5TiWrlmo',  'SALAS'),
+        chamada: (gv('fldLR3CxOz1jZHRN5',  'CHAMADA') || '').toString(),
+      };
+
+      // Mapear cada data de chamada — valor '1' = faltou, '0' = presente
       FREQ_DATES.forEach(d => {
-        const v = f[d.fid];
-        base[d.fid] = v ? (typeof v === 'object' ? v.name : String(v)) : '0';
+        const v = gv(d.fid, d.label.replace('/','/'));
+        if (v === null || v === undefined || v === '') {
+          base[d.fid] = '0'; // sem registro = considerado presente
+        } else {
+          base[d.fid] = typeof v === 'object' ? (v.name || '0') : String(v);
+        }
       });
+
       return base;
     }).filter(r => r.name && SALAS_VALIDAS.includes(r.sala));
+
+    console.log('Chamada carregada:', allChamada.length, 'alunos');
+    if (allChamada.length > 0) {
+      // Debug: mostrar amostra de valores de uma data
+      const sample = allChamada[0];
+      console.log('Amostra aluno:', sample.name, '| sala:', sample.sala);
+      console.log('Valores datas:', FREQ_DATES.slice(0,3).map(d => d.label + ':' + sample[d.fid]));
+    }
   } finally { hideLoad(); }
 }
 
@@ -1211,8 +1271,22 @@ function renderDashFreq() {
   }
 
   const SALAS_ORD = ['6A','6B','7A','7B','8A','8B','9A','9B'];
-  let html = '';
 
+  // ── Pizza geral ──
+  const totalGeral = allChamada.length;
+  const faltaramGeral = allChamada.filter(r => r[fid] === '1').length;
+  const vieramGeral = totalGeral - faltaramGeral;
+  const pctGeral = totalGeral > 0 ? (vieramGeral / totalGeral * 100) : 0;
+
+  // Atualizar pizza SVG
+  document.getElementById('freqPiePresente').setAttribute('stroke-dasharray', `${pctGeral.toFixed(1)} ${(100 - pctGeral).toFixed(1)}`);
+  document.getElementById('freqPiePct').textContent = Math.round(pctGeral) + '%';
+  document.getElementById('freqPieNPresentes').textContent = vieramGeral;
+  document.getElementById('freqPieNFaltosos').textContent = faltaramGeral;
+  document.getElementById('freqPieTotal').textContent = totalGeral;
+
+  // ── Barras por sala ──
+  let html = '';
   SALAS_ORD.forEach(sala => {
     const alunosSala = allChamada.filter(r => r.sala === sala);
     if (alunosSala.length === 0) return;
@@ -1226,10 +1300,10 @@ function renderDashFreq() {
       <div class="freq-bar-label">${sala}</div>
       <div class="freq-bar-group">
         <div class="freq-bar-track">
-          <div class="freq-bar-present" style="width:${pctPresente}%">${vieram > 0 ? vieram : ''}</div>
+          <div class="freq-bar-present" style="width:${pctPresente}%">${vieram > 0 ? vieram + ' pres.' : ''}</div>
         </div>
         <div class="freq-bar-track">
-          <div class="freq-bar-absent" style="width:${pctFalta}%">${faltaram > 0 ? faltaram : ''}</div>
+          <div class="freq-bar-absent" style="width:${pctFalta > 0 ? Math.max(pctFalta, 8) : 0}%">${faltaram > 0 ? faltaram + ' falt.' : '0'}</div>
         </div>
       </div>
       <span style="font-size:10px;color:var(--muted);min-width:36px;text-align:right">${pctPresente}%</span>
@@ -1307,6 +1381,5 @@ window.addEventListener('DOMContentLoaded',()=>{
   const u=localStorage.getItem('aya_srv');if(u)document.getElementById('srvUrl').value=u;
 });
 </script>
-
-
-</body></html>
+</body>
+</html>
