@@ -1050,10 +1050,16 @@ const SALAS_VALIDAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 function active(){
   return allS.filter(s => {
     if (!s.name || !s.name.trim()) return false;
-    // Normaliza a sala: remove espaços, converte para maiúsculo
     const sala = (s.sala || '').toString().trim().toUpperCase().replace(/\s+/g,'');
     return SALAS_VALIDAS.includes(sala);
   });
+}
+// Total real de alunos ativos vem da tabela PEI CHAMADA (SED=ATIVO)
+function totalAtivos(sala){
+  if(!allChamada || allChamada.length === 0) return active();
+  let r = allChamada;
+  if(sala) r = r.filter(s => s.sala === sala);
+  return r;
 }
 
 function populateFilters(){
@@ -1076,7 +1082,7 @@ const ppColor=v=>v>=70?'var(--aya-green)':v>=50?'var(--aya-yellow)':'var(--aya-r
 function renderDash(){
   const sala=document.getElementById('dashSala')?.value||'';
   let b=active();if(sala)b=b.filter(s=>s.sala===sala);
-  document.getElementById('dTotal').textContent=b.length;
+  document.getElementById('dTotal').textContent=totalAtivos(sala).length;
   const salas=[...new Set(b.map(s=>s.sala).filter(Boolean))];
   document.getElementById('dSalas').textContent=salas.length;
   document.getElementById('dSalasD').textContent=salas.slice(0,6).join(' · ')+(salas.length>6?'...':'');
@@ -1209,30 +1215,31 @@ async function loadChamadaData() {
       const fid = r.cellValuesByFieldId || {};
       const f   = r.fields || {};
 
-      // Extrai valor bruto pelo fieldId ou fieldName
-      const gv = (fieldId, fieldName) => {
-        let v = fid[fieldId];
-        if (v === undefined) v = f[fieldName];
+      const gv = (fieldId) => {
+        const v = fid[fieldId];
         return v !== undefined ? v : null;
       };
-
-      // Extrai como string — decodifica singleSelect {id,name,color} automaticamente
-      const gs = (fieldId, fieldName) => {
-        const v = gv(fieldId, fieldName);
+      const gs = (fieldId) => {
+        const v = gv(fieldId);
         if (v === null || v === undefined || v === '') return '';
         if (typeof v === 'object' && v !== null) return v.name || '';
         return String(v).trim();
       };
 
+      // Filtrar apenas alunos ATIVOS pelo campo SED (fldYsHI4kJVXHe3fj)
+      const sed = gs('fldYsHI4kJVXHe3fj');
+      if (sed !== 'ATIVO') return null;
+
       const base = {
-        name:    gs('fldX4StGQ7R3CGA3k', 'Name').replace(/\n/g,''),
-        sala:    gs('fld5ZEt3D5TiWrlmo',  'SALAS'),
-        chamada: gs('fldLR3CxOz1jZHRN5',  'CHAMADA'),
+        name:    gs('fldX4StGQ7R3CGA3k').replace(/\n/g,'').trim(),
+        sala:    gs('fld5ZEt3D5TiWrlmo'),
+        chamada: gs('fldLR3CxOz1jZHRN5'),
+        sed:     sed,
       };
 
-      // Cada campo de data é singleSelect: {name:'1'} = faltou, null/ausente = presente
+      // Cada campo de data é singleSelect: {name:'1'} = faltou, ausente = presente
       FREQ_DATES.forEach(d => {
-        const v = gv(d.fid, null);
+        const v = gv(d.fid);
         if (v === null || v === undefined || v === '') {
           base[d.fid] = '0';
         } else if (typeof v === 'object' && v !== null) {
@@ -1243,7 +1250,7 @@ async function loadChamadaData() {
       });
 
       return base;
-    }).filter(r => r.name && SALAS_VALIDAS.includes(r.sala));
+    }).filter(r => r !== null && r.name);
   } finally { hideLoad(); }
 }
 
