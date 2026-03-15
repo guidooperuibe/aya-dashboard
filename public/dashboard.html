@@ -992,7 +992,7 @@ function parseS(r){
   const gs=(n,k)=>{const v=g(n,k);if(!v)return'';return typeof v==='object'&&v.name?v.name:String(v);};
   return{
     name:(g('Name','fldhx3r3M39SsqrUu')||'').trim().replace(/\n/g,''),
-    sala:gs('SALAS','fldpsPrqz1b7Mbcdy'),chamada:g('CHAMADA','fld5keAUKvj8PrIEf')||'',
+    sala:(()=>{const v=fid['fldpsPrqz1b7Mbcdy']||f['SALAS'];if(!v)return'';return typeof v==='object'?v.name:String(v).trim();})(),chamada:g('CHAMADA','fld5keAUKvj8PrIEf')||'',
     sexo:gs('SEXO','fldfUXL7E96yI2qCd'),rm:g('RM','fldwB276a49KLxiv2')||'',
     periodo:gs('PERÍODO','fldObaX63YiBlCF2W'),ano:gs('ANO','fld7pn1LCb6NGeg3Y'),
     pp1:g('PP1 %','fldbuPEkxhUbR70zu'),pp2:g('PP2 %','fldYcLKQaJQCEYuGH'),pp3:g('PP3 %','fldbSC2oyNJIzbdsT'),
@@ -1023,7 +1023,13 @@ async function loadData(){
 
 // Salas válidas da escola — exclui transferidos (TR) e baixas por transferência (BX TR)
 const SALAS_VALIDAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
-function active(){return allS.filter(s=>s.name&&SALAS_VALIDAS.includes(s.sala));}
+function active(){
+  return allS.filter(s => {
+    if (!s.name || !s.name.trim()) return false;
+    const sala = (s.sala || '').toString().trim().toUpperCase();
+    return SALAS_VALIDAS.includes(sala);
+  });
+}
 
 function populateFilters(){
   const salas=[...new Set(active().map(s=>s.sala).filter(Boolean))].sort();
@@ -1170,54 +1176,49 @@ const FREQ_DATES = [
 let allChamada = []; // dados da tabela PEI CHAMADA
 
 async function loadChamadaData() {
-  if (allChamada.length > 0) return; // já carregou
+  if (allChamada.length > 0) return;
   showLoad('CARREGANDO CHAMADA...');
   try {
     const raw = await fetchAll('tblKcFjBKyQYPew8i');
     allChamada = raw.map(r => {
-      // A API retorna cellValuesByFieldId — suportar ambos os formatos
       const fid = r.cellValuesByFieldId || {};
       const f   = r.fields || {};
 
+      // Extrai valor bruto pelo fieldId ou fieldName
       const gv = (fieldId, fieldName) => {
-        // Tenta pelo ID primeiro, depois pelo nome
         let v = fid[fieldId];
         if (v === undefined) v = f[fieldName];
-        if (v === undefined) return null;
-        return v;
+        return v !== undefined ? v : null;
       };
+
+      // Extrai como string — decodifica singleSelect {id,name,color} automaticamente
       const gs = (fieldId, fieldName) => {
         const v = gv(fieldId, fieldName);
-        if (!v) return '';
-        return typeof v === 'object' && v.name ? v.name : String(v);
+        if (v === null || v === undefined || v === '') return '';
+        if (typeof v === 'object' && v !== null) return v.name || '';
+        return String(v).trim();
       };
 
       const base = {
-        name:    (gv('fldX4StGQ7R3CGA3k', 'Name') || '').toString().trim().replace(/\n/g,''),
-        sala:     gs('fld5ZEt3D5TiWrlmo',  'SALAS'),
-        chamada: (gv('fldLR3CxOz1jZHRN5',  'CHAMADA') || '').toString(),
+        name:    gs('fldX4StGQ7R3CGA3k', 'Name').replace(/\n/g,''),
+        sala:    gs('fld5ZEt3D5TiWrlmo',  'SALAS'),
+        chamada: gs('fldLR3CxOz1jZHRN5',  'CHAMADA'),
       };
 
-      // Mapear cada data de chamada — valor '1' = faltou, '0' = presente
+      // Cada campo de data é singleSelect: {name:'1'} = faltou, null/ausente = presente
       FREQ_DATES.forEach(d => {
-        const v = gv(d.fid, d.label.replace('/','/'));
+        const v = gv(d.fid, null);
         if (v === null || v === undefined || v === '') {
-          base[d.fid] = '0'; // sem registro = considerado presente
+          base[d.fid] = '0';
+        } else if (typeof v === 'object' && v !== null) {
+          base[d.fid] = v.name || '0';
         } else {
-          base[d.fid] = typeof v === 'object' ? (v.name || '0') : String(v);
+          base[d.fid] = String(v).trim();
         }
       });
 
       return base;
     }).filter(r => r.name && SALAS_VALIDAS.includes(r.sala));
-
-    console.log('Chamada carregada:', allChamada.length, 'alunos');
-    if (allChamada.length > 0) {
-      // Debug: mostrar amostra de valores de uma data
-      const sample = allChamada[0];
-      console.log('Amostra aluno:', sample.name, '| sala:', sample.sala);
-      console.log('Valores datas:', FREQ_DATES.slice(0,3).map(d => d.label + ':' + sample[d.fid]));
-    }
   } finally { hideLoad(); }
 }
 
