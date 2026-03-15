@@ -1003,7 +1003,7 @@ function parseS(r){
   };
   return{
     name:(g('Name','fldhx3r3M39SsqrUu')||'').toString().trim().replace(/\n/g,''),
-    sala:gs('SALAS','fldpsPrqz1b7Mbcdy'),
+    sala:(()=>{const v=fid['fldpsPrqz1b7Mbcdy']||f['SALAS'];if(!v)return'';const n=typeof v==='object'?v.name||'':String(v);return n.trim().toUpperCase().replace(/\s+/g,'');})(),
     chamada:(g('CHAMADA','fld5keAUKvj8PrIEf')||'').toString().trim(),
     sexo:gs('SEXO','fldfUXL7E96yI2qCd'),
     rm:g('RM','fldwB276a49KLxiv2')||'',
@@ -1050,7 +1050,8 @@ const SALAS_VALIDAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 function active(){
   return allS.filter(s => {
     if (!s.name || !s.name.trim()) return false;
-    const sala = (s.sala || '').toString().trim().toUpperCase();
+    // Normaliza a sala: remove espaços, converte para maiúsculo
+    const sala = (s.sala || '').toString().trim().toUpperCase().replace(/\s+/g,'');
     return SALAS_VALIDAS.includes(sala);
   });
 }
