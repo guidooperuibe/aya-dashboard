@@ -1083,7 +1083,9 @@ function renderDash(){
   const sala=document.getElementById('dashSala')?.value||'';
 
   // FONTE DA VERDADE: PEI CHAMADA com SED=ATIVO
-  let ativos = allChamada.length > 0 ? allChamada : active();
+  // Aguardar allChamada — nunca usar active() como fallback para total
+  if(allChamada.length === 0){ setTimeout(renderDash, 500); return; }
+  let ativos = allChamada;
   if(sala) ativos = ativos.filter(s=>s.sala===sala);
 
   // Total e salas
