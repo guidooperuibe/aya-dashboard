@@ -885,7 +885,7 @@ const PERFS = {
   funcionarios: { label:'Funcionário',  pill:'pill-funcionarios', nav:[{id:'alunos',icon:'👥',label:'Alunos',color:'var(--aya-green)'},{id:'administrativo',icon:'📁',label:'Administrativo',color:'var(--aya-green)'},{id:'tecnologia',icon:'💻',label:'Tecnologia',color:'var(--aya-green)'},{id:'atividades',icon:'⚽',label:'Atividades',color:'var(--aya-green)'}] },
 };
 
-let token=null, perfil=null, nome='', allS=[], allT=[];
+let token=null, perfil=null, nome='', allS=[], allT=[], allChamada=[];
 let pgs={cham:1,alu:1,adm:1}; const PG=30;
 let selP=null;
 
@@ -1204,7 +1204,6 @@ const FREQ_DATES = [
   {label:'16/03',fid:'fld5qQxd5WQ8VuuPZ'},
 ];
 
-let allChamada = []; // dados da tabela PEI CHAMADA
 
 async function loadChamadaData() {
   if (allChamada.length > 0) return;
