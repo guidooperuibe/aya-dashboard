@@ -988,22 +988,46 @@ async function fetchAll(tbl){let rec=[],off=null;do{const d=await apiFetch(tbl,o
 
 function parseS(r){
   const f=r.fields||{};const fid=r.cellValuesByFieldId||{};
-  const g=(n,k)=>{let v=f[n];if(v!==undefined)return v;v=fid[k];return v!==undefined?v:null;};
-  const gs=(n,k)=>{const v=g(n,k);if(!v)return'';return typeof v==='object'&&v.name?v.name:String(v);};
+  // Extrai valor bruto pelo fieldId primeiro, depois pelo nome
+  const g=(n,k)=>{
+    let v=(k?fid[k]:undefined);
+    if(v===undefined)v=f[n];
+    return v!==undefined?v:null;
+  };
+  // Extrai como string — decodifica singleSelect {id,name,color} automaticamente
+  const gs=(n,k)=>{
+    const v=g(n,k);
+    if(v===null||v===undefined||v==='')return'';
+    if(typeof v==='object'&&v!==null)return v.name||'';
+    return String(v).trim();
+  };
   return{
-    name:(g('Name','fldhx3r3M39SsqrUu')||'').trim().replace(/\n/g,''),
-    sala:(()=>{const v=fid['fldpsPrqz1b7Mbcdy']||f['SALAS'];if(!v)return'';return typeof v==='object'?v.name:String(v).trim();})(),chamada:g('CHAMADA','fld5keAUKvj8PrIEf')||'',
-    sexo:gs('SEXO','fldfUXL7E96yI2qCd'),rm:g('RM','fldwB276a49KLxiv2')||'',
-    periodo:gs('PERÍODO','fldObaX63YiBlCF2W'),ano:gs('ANO','fld7pn1LCb6NGeg3Y'),
-    pp1:g('PP1 %','fldbuPEkxhUbR70zu'),pp2:g('PP2 %','fldYcLKQaJQCEYuGH'),pp3:g('PP3 %','fldbSC2oyNJIzbdsT'),
-    kit:gs('KIT ESCOLAR','fld0RuFi2I38TSqTJ'),carteirinha:gs('CARTEIRINHA SENHA','fld62fjkQDVkXST5d'),
-    brigada:gs('BRIGADA','fldGfN0K1bM0PLApJ'),zapPais:gs('ZAP PAIS','fldK6UYVlDVOw441t'),
-    judo:gs('JUDO','fld2YCljNjS8d6uh1'),futebol:gs('FUTEBOL','fldtuJB2UlMHNUXms'),
-    hapikdo:gs('HAPIKDO','fldj1cdIR79ih91OV'),pingpong:gs('PING PONG','fldcVHXR0PrpmaAZS'),
-    capoeira:gs('CAPOEIRA','fldXRU6Mpe0AR4HQD'),violao:gs('VIOLÃO','fldLOiqpQHdfeK0CD'),
-    desenho:gs('DESENHO','fldmTFSDYb5FNkhN3'),origami:gs('ORIGAMI','fldNmvKGDOAlwSLI8'),
-    jogos:gs('JOGOS','fldqD7xk3QKa4Oqfc'),beleza1:gs('BELEZA 1','fld7ZVgjcNlcsI8wG'),
-    clube:gs('CLUBE 2026','fld7swjCymCDC9zIw'),eletiva:gs('ELETIVA 2026','fldimhArmkH5gScIF'),
+    name:(g('Name','fldhx3r3M39SsqrUu')||'').toString().trim().replace(/\n/g,''),
+    sala:gs('SALAS','fldpsPrqz1b7Mbcdy'),
+    chamada:(g('CHAMADA','fld5keAUKvj8PrIEf')||'').toString().trim(),
+    sexo:gs('SEXO','fldfUXL7E96yI2qCd'),
+    rm:g('RM','fldwB276a49KLxiv2')||'',
+    periodo:gs('PERÍODO','fldObaX63YiBlCF2W'),
+    ano:gs('ANO','fld7pn1LCb6NGeg3Y'),
+    pp1:g('PP1 %','fldbuPEkxhUbR70zu'),
+    pp2:g('PP2 %','fldYcLKQaJQCEYuGH'),
+    pp3:g('PP3 %','fldbSC2oyNJIzbdsT'),
+    kit:gs('KIT ESCOLAR','fld0RuFi2I38TSqTJ'),
+    carteirinha:gs('CARTEIRINHA SENHA','fld62fjkQDVkXST5d'),
+    brigada:gs('BRIGADA','fldGfN0K1bM0PLApJ'),
+    zapPais:gs('ZAP PAIS','fldK6UYVlDVOw441t'),
+    judo:gs('JUDO','fld2YCljNjS8d6uh1'),
+    futebol:gs('FUTEBOL','fldtuJB2UlMHNUXms'),
+    hapikdo:gs('HAPIKDO','fldj1cdIR79ih91OV'),
+    pingpong:gs('PING PONG','fldcVHXR0PrpmaAZS'),
+    capoeira:gs('CAPOEIRA','fldXRU6Mpe0AR4HQD'),
+    violao:gs('VIOLÃO','fldLOiqpQHdfeK0CD'),
+    desenho:gs('DESENHO','fldmTFSDYb5FNkhN3'),
+    origami:gs('ORIGAMI','fldNmvKGDOAlwSLI8'),
+    jogos:gs('JOGOS','fldqD7xk3QKa4Oqfc'),
+    beleza1:gs('BELEZA 1','fld7ZVgjcNlcsI8wG'),
+    clube:gs('CLUBE 2026','fld7swjCymCDC9zIw'),
+    eletiva:gs('ELETIVA 2026','fldimhArmkH5gScIF'),
   };
 }
 
