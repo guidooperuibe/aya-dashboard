@@ -1014,6 +1014,13 @@ async function loadData(){
     allChamada = [];
     await loadChamadaData();
     populateFreqSelects();
+    // Forçar re-render após carregamento completo
+    setTimeout(()=>{
+      const fid = document.getElementById('dashFreqDate')?.value;
+      if(fid) renderDashFreq();
+      const fidFreq = document.getElementById('freqDataSel')?.value;
+      if(fidFreq) renderFreq();
+    }, 500);
   }finally{hideLoad();}
 }
 
