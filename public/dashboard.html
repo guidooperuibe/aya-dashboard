@@ -1271,8 +1271,14 @@ function renderDashFreq() {
   const freqSel = document.getElementById('freqDataSel');
   if (fid && freqSel) freqSel.value = fid;
 
-  if (!fid || allChamada.length === 0) {
+  if (!fid) {
     document.getElementById('dashFreqBars').innerHTML = '<div class="empty" style="padding:20px">Selecione uma data</div>';
+    return;
+  }
+  
+  if (allChamada.length === 0) {
+    // Dados ainda carregando — tentar novamente em 1 segundo
+    setTimeout(renderDashFreq, 1000);
     return;
   }
 
