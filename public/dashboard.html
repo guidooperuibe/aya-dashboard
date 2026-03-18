@@ -1189,7 +1189,9 @@ async function loadChamadaData() {
   if (allChamada.length > 0) return;
   showLoad('CARREGANDO CHAMADA...');
   try {
+    console.log('[CHAMADA] Iniciando fetchAll...');
     const raw = await fetchAll('tblKcFjBKyQYPew8i');
+    console.log('[CHAMADA] Registros brutos recebidos:', raw.length);
     allChamada = raw.map(r => {
       const fid = r.cellValuesByFieldId || {};
       const f   = r.fields || {};
@@ -1230,6 +1232,9 @@ async function loadChamadaData() {
 
       return base;
     }).filter(r => r !== null && r.name);
+    console.log('[CHAMADA] Alunos ATIVOS processados:', allChamada.length);
+  } catch(e) {
+    console.error('[CHAMADA] ERRO:', e);
   } finally { hideLoad(); }
 }
 
