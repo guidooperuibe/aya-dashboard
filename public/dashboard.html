@@ -1010,18 +1010,17 @@ async function loadData(){
     allS=rawS.map(parseS);
     allT=rawT.map(r=>{const f=r.fields||r.cellValuesByFieldId||{};const gs=(n,k)=>{let v=f[n]||f[k];if(!v)return'';return typeof v==='object'&&v.name?v.name:String(v);};return{name:gs('Name','fld8zhDcGbvt9aAsH'),status:gs('STATUS','fldhOPe6iEtoUtKWS'),ambiente:gs('AMBIENTE','fldanChZhaopsKtds')};}).filter(t=>t.name);
     populateFilters();
-    // Carregar dados de chamada
     allChamada = [];
     await loadChamadaData();
     populateFreqSelects();
-    // Forçar re-render após carregamento completo
+  }finally{
+    hideLoad();
+    // Renderizar frequência após tudo carregado
     setTimeout(()=>{
-      const fid = document.getElementById('dashFreqDate')?.value;
-      if(fid) renderDashFreq();
-      const fidFreq = document.getElementById('freqDataSel')?.value;
-      if(fidFreq) renderFreq();
-    }, 500);
-  }finally{hideLoad();}
+      renderDashFreq();
+      renderFreq();
+    }, 300);
+  }
 }
 
 // Salas válidas da escola — exclui transferidos (TR) e baixas por transferência (BX TR)
