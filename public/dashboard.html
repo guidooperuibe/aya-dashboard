@@ -192,6 +192,15 @@ body::before {
   cursor:pointer; transition:all .2s;
 }
 .topbar-sair:hover { border-color:var(--accent); color:var(--accent); }
+  .topbar-atualizar {
+    background:none; border:1px solid rgba(255,255,255,.15); color:#FFFFFF;
+    border-radius:6px; padding:5px 12px; font-family:'DM Sans',sans-serif;
+    font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:all .2s; margin-right:4px;
+  }
+  .topbar-atualizar:hover { border-color:#4ADE80; color:#4ADE80; }
+  .topbar-atualizar.girando { animation: girar .8s linear infinite; }
+  @keyframes girar { to { transform: rotate(360deg); } }
 
 /* Sidebar */
 .sidebar {
@@ -455,7 +464,8 @@ body::before {
     <div class="topbar-brand">AYA Dashboard</div>
     <div class="topbar-dot"></div>
     <div class="topbar-user" id="topUser"></div>
-    <button class="topbar-sair" onclick="sair()">Sair</button>
+    <button class="topbar-atualizar" id="btnAtualizar" onclick="atualizarDados()">↻ Atualizar</button>
+  <button class="topbar-sair" onclick="sair()">Sair</button>
   </div>
 
   <div class="sidebar">
@@ -1050,6 +1060,17 @@ function renderAlunosCriticos(){
         }).join('')}
       </tbody>
     </table>`;
+}
+
+async function atualizarDados(){
+  const btn = document.getElementById('btnAtualizar');
+  btn.classList.add('girando');
+  btn.disabled = true;
+  allAlunos = [];
+  allAlunosTotal = [];
+  await loadData();
+  btn.classList.remove('girando');
+  btn.disabled = false;
 }
 
 function sair(){
