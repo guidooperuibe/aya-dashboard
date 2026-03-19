@@ -622,7 +622,7 @@ function renderAll(){
   if(chartGenero) chartGenero.destroy();
   chartGenero = new Chart(document.getElementById('chartGenero'), {
     type:'doughnut',
-    data:{ labels:['Masculino','Feminino'], datasets:[{ data:[masc,fem], backgroundColor:['#1C1917','#C9A84C'], borderWidth:0, hoverOffset:6 }] },
+    data:{ labels:['Masculino','Feminino'], datasets:[{ data:[masc,fem], backgroundColor:['#4ADE80','#FCA5A5'], borderWidth:0, hoverOffset:6 }] },
     options:{ responsive:true, maintainAspectRatio:false, cutout:'68%',
       plugins:{ legend:{ position:'bottom', labels:{ font:{family:'DM Sans',size:12}, color:'#44403C', padding:16 } } }
     }
@@ -667,8 +667,8 @@ function renderFreqChart(){
   chartFreq = new Chart(document.getElementById('chartFreq'), {
     type:'bar',
     data:{ labels:SALAS, datasets:[
-      { label:'Presentes', data:presentes, backgroundColor:'#1C1917', borderRadius:6 },
-      { label:'Faltas',    data:faltas,    backgroundColor:'#C9A84C', borderRadius:6 },
+      { label:'Presentes', data:presentes, backgroundColor:'#4ADE80', borderRadius:6 },
+      { label:'Faltas',    data:faltas,    backgroundColor:'#FB923C', borderRadius:6 },
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
