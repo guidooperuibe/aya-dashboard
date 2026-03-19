@@ -402,7 +402,10 @@ body::before {
         <div class="kpi-detail">ativos na escola</div>
       </div>
       <div class="kpi-card" style="--card-color:var(--green);animation-delay:.08s">
-        <div class="kpi-label">Presentes</div>
+        <div class="kpi-label" style="display:flex;align-items:center;justify-content:space-between">
+          Presentes
+          <select class="kpi-date-sel" id="kpiDataSel" onchange="atualizarKPIs()"></select>
+        </div>
         <div class="kpi-value" id="kpiPresentes">—</div>
         <div class="kpi-detail" id="kpiPresentesDet">—</div>
       </div>
@@ -618,11 +621,34 @@ function renderAll(){
     }
   });
 
-  // Seletor datas
+  // Seletor datas principal
   const sel = document.getElementById('dataSel');
   sel.innerHTML = '<option value="">Selecione uma data</option>';
   DATAS.forEach(d => { sel.innerHTML += `<option value="${d.fid}">${d.label}</option>`; });
   if(ultima){ sel.value = ultima.fid; renderFreqChart(); }
+
+  // Seletor datas do KPI
+  const kpiSel = document.getElementById('kpiDataSel');
+  kpiSel.innerHTML = '';
+  DATAS.forEach(d => { kpiSel.innerHTML += `<option value="${d.fid}">${d.label}</option>`; });
+  if(ultima) kpiSel.value = ultima.fid;
+}
+
+function atualizarKPIs(){
+  const fid = document.getElementById('kpiDataSel').value;
+  if(!fid || !allAlunos.length) return;
+  const total = allAlunos.length;
+  const faltas = allAlunos.filter(a => a[fid] === '1').length;
+  const presentes = total - faltas;
+  const pct = total > 0 ? Math.round((presentes/total)*100) : 0;
+  const data = DATAS.find(d => d.fid === fid);
+  document.getElementById('kpiPresentes').textContent = presentes;
+  document.getElementById('kpiPresentesDet').textContent = `${pct}% — ${data?.label||''}`;
+  document.getElementById('kpiFaltas').textContent = faltas;
+  document.getElementById('kpiFaltasDet').textContent = `${100-pct}% dos alunos`;
+  // Sincronizar com o gráfico
+  document.getElementById('dataSel').value = fid;
+  renderFreqChart();
 }
 
 function renderFreqChart(){
