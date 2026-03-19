@@ -421,6 +421,9 @@ body::before {
     <button class="nav-item" id="nav-turmas" onclick="showView('turmas')">
       <span class="nav-icon">🏫</span> Turmas
     </button>
+    <button class="nav-item" id="nav-alunos" onclick="showView('alunos')">
+      <span class="nav-icon">👤</span> Alunos
+    </button>
   </div>
 
   <div class="main" id="view-painel">
@@ -508,6 +511,41 @@ body::before {
     </div>
   </div>
 
+  <!-- VIEW ALUNOS -->
+  <div id="view-alunos" style="display:none" class="main">
+    <div class="page-header">
+      <div class="page-title">Alunos</div>
+      <div class="page-sub">Cadastro e frequência individual</div>
+    </div>
+    <!-- Filtros -->
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <input type="text" id="aluBusca" placeholder="🔍 Buscar por nome..." oninput="renderAlunos()"
+        style="flex:1;min-width:200px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;">
+      <select id="aluSala" onchange="renderAlunos()" class="date-select">
+        <option value="">Todas as salas</option>
+        <option>6A</option><option>6B</option><option>7A</option><option>7B</option>
+        <option>8A</option><option>8B</option><option>9A</option><option>9B</option>
+      </select>
+      <select id="aluStatus" onchange="renderAlunos()" class="date-select">
+        <option value="">Todos os status</option>
+        <option>ATIVO</option><option>TR</option><option>REM</option><option>NCOM</option>
+      </select>
+    </div>
+    <div class="panel" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:var(--cream)">
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Nome</th>
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Turma</th>
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Frequência</th>
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Status</th>
+          </tr>
+        </thead>
+        <tbody id="alunosTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -541,11 +579,12 @@ const DATAS = [
   {label:'17/03',fid:'fldVRiTrWKfaveTvA',nome:'17/3'},
   {label:'18/03',fid:'fldXYAdZfDsemNsav',nome:'18/3'},
   {label:'19/03',fid:'fldcp22tZjlosokoK',nome:'19/3'},
+  {label:'20/03',fid:'fldrvCAnlzBxLZheg',nome:'20/3'},
 ];
 const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 const CORES = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
-let token = null, allAlunos = [], chartGenero = null, chartFreq = null;
+let token = null, allAlunos = [], allAlunosTotal = [], chartGenero = null, chartFreq = null;
 
 function srv(){ return localStorage.getItem('aya_srv') || DEFAULT_SRV; }
 
@@ -583,12 +622,56 @@ async function doLogin(){
 const CORES_TURMA = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
 function showView(v){
-  document.getElementById('view-painel').style.display = v==='painel' ? '' : 'none';
-  document.getElementById('view-turmas').style.display = v==='turmas' ? 'block' : 'none';
+  ['painel','turmas','alunos'].forEach(id => {
+    const el = document.getElementById('view-'+id);
+    if(el) el.style.display = v===id ? (id==='painel'?'':'block') : 'none';
+  });
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   const nb = document.getElementById('nav-'+v);
   if(nb) nb.classList.add('active');
   if(v==='turmas') renderTurmas();
+  if(v==='alunos') renderAlunos();
+}
+
+function calcFreq(aluno){
+  let p=0,t=0;
+  DATAS.forEach(d=>{ t++; if(aluno[d.fid]!=='1') p++; });
+  return t>0?Math.round((p/t)*100):0;
+}
+
+function renderAlunos(){
+  const busca = (document.getElementById('aluBusca')?.value||'').toLowerCase();
+  const sala  = document.getElementById('aluSala')?.value||'';
+  const status= document.getElementById('aluStatus')?.value||'';
+
+  // Incluir todos os registros (incluindo TR, REM, NCOM)
+  let lista = allAlunosTotal.filter(a => {
+    if(busca && !a.name.toLowerCase().includes(busca)) return false;
+    if(sala && a.sala !== sala) return false;
+    if(status && a.sed !== status) return false;
+    return true;
+  }).sort((a,b) => a.sala.localeCompare(b.sala) || a.name.localeCompare(b.name));
+
+  const STATUS_COR = {
+    'ATIVO':  {bg:'#DCFCE7',color:'#166534'},
+    'TR':     {bg:'#FEF9C3',color:'#854D0E'},
+    'REM':    {bg:'#DBEAFE',color:'#1E40AF'},
+    'NCOM':   {bg:'#F3F4F6',color:'#374151'},
+  };
+
+  document.getElementById('alunosTbody').innerHTML = lista.map(a => {
+    const freq = calcFreq(a);
+    const cor = freq >= 85 ? '#166534' : freq >= 70 ? '#854D0E' : '#991B1B';
+    const sc = STATUS_COR[a.sed] || {bg:'#F3F4F6',color:'#374151'};
+    return `<tr style="border-bottom:1px solid var(--line)">
+      <td style="padding:12px 16px;font-size:13px;font-weight:500;color:var(--ink)">${a.name}</td>
+      <td style="padding:12px 16px;font-size:13px;color:var(--muted)">${a.sala||'—'}</td>
+      <td style="padding:12px 16px;font-size:13px;font-weight:600;color:${cor}">${freq}%</td>
+      <td style="padding:12px 16px">
+        <span style="background:${sc.bg};color:${sc.color};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${a.sed||'—'}</span>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--muted)">Nenhum aluno encontrado</td></tr>';
 }
 
 function renderTurmas(){
@@ -688,6 +771,20 @@ async function loadData(){
 
     console.log('Total registros recebidos:', records.length);
     if(records.length > 0) console.log('Primeiro registro:', JSON.stringify(records[0]).substring(0,200));
+    // allAlunosTotal inclui TODOS os alunos (ATIVO, TR, REM, NCOM)
+    allAlunosTotal = records.map(r => {
+      const f = r.fields || r.cellValuesByFieldId || {};
+      const gs = k => { const v=f[k]; if(!v&&v!==0) return ''; if(typeof v==='object') return v.name||''; return String(v).trim(); };
+      const name = gs('Name').replace(/\n/g,'').trim();
+      if(!name) return null;
+      const base = { name, sala: gs('SALAS'), sexo: gs('SEXO'), sed: gs('SED') };
+      DATAS.forEach(d => {
+        const v = f[d.fid] !== undefined ? f[d.fid] : (f[d.nome] !== undefined ? f[d.nome] : null);
+        base[d.fid] = v ? (typeof v==='object'?v.name||'0':String(v).trim()) : '0';
+      });
+      return base;
+    }).filter(Boolean);
+
     allAlunos = records.map(r => {
       const f = r.fields || r.cellValuesByFieldId || {};
       const gs = k => {
@@ -803,11 +900,11 @@ function atualizarKPIs(){
 function renderSemanaChart(){
   // Últimos 5 dias úteis — 13/03 a 19/03
   const semana = [
-    {label:'13/03',fid:'fld4uHPMwl3eBKGvc'},
     {label:'16/03',fid:'fld5qQxd5WQ8VuuPZ'},
     {label:'17/03',fid:'fldVRiTrWKfaveTvA'},
     {label:'18/03',fid:'fldXYAdZfDsemNsav'},
     {label:'19/03',fid:'fldcp22tZjlosokoK'},
+    {label:'20/03',fid:'fldrvCAnlzBxLZheg'},
   ];
   const labels = semana.map(d => d.label);
   const faltas = semana.map(d => allAlunos.filter(a => a[d.fid] === '1').length);
