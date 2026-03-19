@@ -282,7 +282,31 @@ body::before {
 .sala-bar-num { font-size:11px; color:var(--muted); text-align:right; }
 .chart-wrap { position:relative; height:240px; }
 
-/* Responsivo */
+/* Cards turmas */
+  .turmas-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .turma-card {
+    background:var(--white); border:1.5px solid var(--line);
+    border-radius:12px; padding:24px;
+    position:relative; overflow:hidden;
+    animation:fadeUp .4s ease both;
+  }
+  .turma-card::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background:var(--card-color, var(--accent));
+  }
+  .turma-nome {
+    font-family:'Playfair Display',serif;
+    font-size:28px; font-weight:700; color:var(--ink); line-height:1;
+  }
+  .turma-alunos { font-size:13px; color:var(--muted); margin-top:6px; }
+  .turma-freq-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:16px; margin-bottom:4px; }
+  .turma-freq-valor { font-size:22px; font-weight:700; }
+  .turma-freq-bar { height:6px; background:var(--line); border-radius:3px; margin-top:8px; overflow:hidden; }
+  .turma-freq-fill { height:100%; border-radius:3px; transition:width .8s; }
+  @media(max-width:900px){ .turmas-grid { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:500px){ .turmas-grid { grid-template-columns:1fr 1fr; } }
+
+  /* Responsivo */
 @media(max-width:700px){
   .login-left { display:none; }
   .login-right { width:100%; padding:48px 24px; }
@@ -463,6 +487,18 @@ body::before {
     </div>
 
   </div>
+
+  <!-- VIEW TURMAS -->
+  <div id="view-turmas" style="display:none">
+    <div class="main">
+      <div class="page-header">
+        <div class="page-title">Turmas</div>
+        <div class="page-sub">Alunos e frequência por sala</div>
+      </div>
+      <div id="turmasGrid"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -533,6 +569,52 @@ async function doLogin(){
     btn.disabled = false;
     btn.querySelector('span').textContent = 'Entrar';
   }
+}
+
+const CORES_TURMA = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
+
+function showView(v){
+  document.getElementById('painelScreen').querySelector('.main').style.display = v==='painel' ? '' : 'none';
+  const vt = document.getElementById('view-turmas');
+  if(vt) vt.style.display = v==='turmas' ? 'block' : 'none';
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  const nb = document.getElementById('nav-'+v);
+  if(nb) nb.classList.add('active');
+  if(v==='turmas') renderTurmas();
+}
+
+function renderTurmas(){
+  const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
+  const totalDatas = DATAS.length;
+
+  const cards = SALAS.map((sala, i) => {
+    const alunos = allAlunos.filter(a => a.sala === sala);
+    const total = alunos.length;
+    if(total === 0) return '';
+
+    // Média de frequência: % de presenças em todas as datas
+    let totalPresencas = 0, totalRegistros = 0;
+    DATAS.forEach(d => {
+      alunos.forEach(a => {
+        totalRegistros++;
+        if(a[d.fid] !== '1') totalPresencas++;
+      });
+    });
+    const media = totalRegistros > 0 ? Math.round((totalPresencas/totalRegistros)*100) : 0;
+    const cor = media >= 85 ? '#4ADE80' : media >= 70 ? '#EAB308' : '#EF4444';
+
+    return `<div class="turma-card" style="--card-color:${CORES_TURMA[i]}">
+      <div class="turma-nome">${sala}</div>
+      <div class="turma-alunos">${total} alunos</div>
+      <div class="turma-freq-label">Média de Frequência</div>
+      <div class="turma-freq-valor" style="color:${cor}">${media}%</div>
+      <div class="turma-freq-bar">
+        <div class="turma-freq-fill" style="width:${media}%;background:${cor}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('turmasGrid').innerHTML = `<div class="turmas-grid">${cards}</div>`;
 }
 
 function sair(){
