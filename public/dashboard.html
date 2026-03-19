@@ -704,8 +704,23 @@ function showView(v){
 
 function calcFreq(aluno){
   let p=0,t=0;
-  DATAS.forEach(d=>{ t++; if(aluno[d.fid]!=='1') p++; });
+  // Só conta dias que já ocorreram (pelo menos 1 aluno faltou = dia real)
+  DATAS.forEach(d=>{
+    if(!DIAS_VALIDOS.has(d.fid)) return;
+    t++;
+    if(aluno[d.fid]!=='1') p++;
+  });
   return t>0?Math.round((p/t)*100):0;
+}
+
+function calcFreqMes(aluno, datas){
+  let p=0, t=0;
+  datas.forEach(d => {
+    if(!DIAS_VALIDOS.has(d.fid)) return;
+    t++;
+    if(aluno[d.fid] !== '1') p++;
+  });
+  return t > 0 ? Math.round((p/t)*100) : 0;
 }
 
 function renderAlunos(){
@@ -841,12 +856,6 @@ const MESES = {
     {label:'30/03',fid:'fld6oWAEa749orm56'},{label:'31/03',fid:'fldc0N8Hz48X72KwM'},
   ],
 };
-
-function calcFreqMes(aluno, datas){
-  let p=0, t=0;
-  datas.forEach(d => { t++; if(aluno[d.fid] !== '1') p++; });
-  return t > 0 ? Math.round((p/t)*100) : 0;
-}
 
 function renderFrequencia(){
   // KPIs gerais
@@ -1013,6 +1022,12 @@ async function loadData(){
       });
       return base;
     }).filter(Boolean);
+
+    // Calcular dias válidos: dias onde pelo menos 1 aluno faltou
+    window.DIAS_VALIDOS = new Set();
+    DATAS.forEach(d => {
+      if(allAlunos.some(a => a[d.fid] === '1')) DIAS_VALIDOS.add(d.fid);
+    });
 
     renderAll();
   } catch(e) {
