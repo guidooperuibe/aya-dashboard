@@ -1211,9 +1211,10 @@ async function loadChamadaData() {
         return String(v).trim();
       };
 
-      // Filtrar apenas alunos ATIVOS pelo campo SED (fldYsHI4kJVXHe3fj)
+      // Usar todos os alunos da PEI CHAMADA (já são os ativos)
+      // Excluir apenas TR e BX TR pelo campo SED
       const sed = gs('fldYsHI4kJVXHe3fj');
-      if (sed !== 'ATIVO') return null;
+      if (sed === 'TR' || sed === 'BX TR' || sed === 'NCOM' || sed === 'REM') return null;
 
       const base = {
         name:    gs('fldX4StGQ7R3CGA3k').replace(/\n/g,'').trim(),
