@@ -455,6 +455,18 @@ body::before {
   </div>
 </div>
 
+    <!-- Gráfico evolução faltas última semana -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Evolução de Faltas — Última Semana</div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartSemana"></canvas>
+      </div>
+    </div>
+
+</div>
+
 <script>
 const DEFAULT_SRV = 'https://aya-dashboard.onrender.com';
 const DATAS = [
@@ -628,6 +640,9 @@ function renderAll(){
     }
   });
 
+  // Gráfico última semana
+  renderSemanaChart();
+
   // Seletor datas principal
   const sel = document.getElementById('dataSel');
   sel.innerHTML = '<option value="">Selecione uma data</option>';
@@ -656,6 +671,56 @@ function atualizarKPIs(){
   // Sincronizar com o gráfico
   document.getElementById('dataSel').value = fid;
   renderFreqChart();
+}
+
+function renderSemanaChart(){
+  // Últimos 5 dias úteis — 13/03 a 19/03
+  const semana = [
+    {label:'13/03',fid:'fld4uHPMwl3eBKGvc'},
+    {label:'16/03',fid:'fld5qQxd5WQ8VuuPZ'},
+    {label:'17/03',fid:'fldVRiTrWKfaveTvA'},
+    {label:'18/03',fid:'fldXYAdZfDsemNsav'},
+    {label:'19/03',fid:'fldcp22tZjlosokoK'},
+  ];
+  const labels = semana.map(d => d.label);
+  const faltas = semana.map(d => allAlunos.filter(a => a[d.fid] === '1').length);
+
+  const ctx = document.getElementById('chartSemana');
+  if(!ctx) return;
+  if(window._chartSemana) window._chartSemana.destroy();
+  window._chartSemana = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Faltas',
+        data: faltas,
+        borderColor:'#FB923C',
+        backgroundColor:'rgba(251,146,60,.1)',
+        borderWidth:2.5,
+        pointBackgroundColor:'#FB923C',
+        pointRadius:5,
+        pointHoverRadius:7,
+        tension:.3,
+        fill:true,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label: c => ` ${c.raw} faltas` } }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{family:'DM Sans',size:12},color:'#78716C'} },
+        y:{
+          min:0,
+          grid:{color:'#E7E2DA'},
+          ticks:{font:{family:'DM Sans',size:11},color:'#78716C', stepSize:10}
+        }
+      }
+    }
+  });
 }
 
 function renderFreqChart(){
