@@ -317,6 +317,51 @@ body::before {
   .kpi-row { grid-template-columns:1fr 1fr; }
   .grid2 { grid-template-columns:1fr; }
 }
+  /* Modal faltas */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.5);
+    z-index:1000; display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal-box {
+    background:var(--white); border-radius:16px;
+    width:100%; max-width:560px; max-height:80vh;
+    display:flex; flex-direction:column; overflow:hidden;
+    animation:fadeUp .3s ease;
+  }
+  .modal-header {
+    padding:20px 24px; border-bottom:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    background:#C0392B; border-radius:16px 16px 0 0;
+  }
+  .modal-header-title {
+    font-family:'Playfair Display',serif;
+    font-size:18px; color:#fff; font-weight:700;
+  }
+  .modal-header-sub { font-size:12px; color:rgba(255,255,255,.8); margin-top:2px; }
+  .modal-close {
+    background:rgba(255,255,255,.2); border:none; color:#fff;
+    width:32px; height:32px; border-radius:50%; font-size:16px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover { background:rgba(255,255,255,.3); }
+  .modal-body { overflow-y:auto; padding:16px 24px; }
+  .modal-sala-titulo {
+    font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--muted); font-weight:600; margin:16px 0 8px;
+    padding-bottom:6px; border-bottom:1px solid var(--line);
+  }
+  .modal-sala-titulo:first-child { margin-top:0; }
+  .modal-aluno-row {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 0; border-bottom:1px solid var(--line);
+    font-size:13px; color:var(--ink);
+  }
+  .modal-aluno-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:#C0392B; flex-shrink:0;
+  }
 </style>
 </head>
 <body>
@@ -449,10 +494,10 @@ body::before {
         <div class="kpi-value" id="kpiPresentes">—</div>
         <div class="kpi-detail" id="kpiPresentesDet">—</div>
       </div>
-      <div class="kpi-card" style="--card-color:var(--red);animation-delay:.16s">
-        <div class="kpi-label">Faltas</div>
-        <div class="kpi-value" id="kpiFaltas">—</div>
-        <div class="kpi-detail" id="kpiFaltasDet">—</div>
+      <div class="kpi-card" id="cardFaltas" style="--card-color:var(--red);animation-delay:.16s;background:#C0392B;cursor:pointer;border-color:#C0392B" onclick="abrirModalFaltas()">
+        <div class="kpi-label" style="color:rgba(255,255,255,.8)">🔊 Faltas</div>
+        <div class="kpi-value" id="kpiFaltas" style="color:#fff">—</div>
+        <div class="kpi-detail" id="kpiFaltasDet" style="color:rgba(255,255,255,.7)">—</div>
       </div>
     </div>
 
@@ -607,6 +652,20 @@ body::before {
     </div>
   </div>
 
+</div>
+
+<!-- MODAL FALTAS -->
+<div class="modal-overlay" id="modalFaltas" onclick="if(event.target===this) fecharModalFaltas()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-header-title">🔊 Lista de Faltas</div>
+        <div class="modal-header-sub" id="modalFaltasSub">—</div>
+      </div>
+      <button class="modal-close" onclick="fecharModalFaltas()">✕</button>
+    </div>
+    <div class="modal-body" id="modalFaltasBody"></div>
+  </div>
 </div>
 
 <script>
@@ -832,6 +891,37 @@ function renderTurmas(){
 }
 
 // Meses com seus campos
+function abrirModalFaltas(){
+  const fid = document.getElementById('kpiDataSel')?.value;
+  if(!fid || !allAlunos.length) return;
+  const data = DATAS.find(d => d.fid === fid);
+  const SALAS_ORD = ['6A','6B','7A','7B','8A','8B','9A','9B'];
+
+  document.getElementById('modalFaltasSub').textContent =
+    `${data?.label||'—'} — ${allAlunos.filter(a=>a[fid]==='1').length} faltosos`;
+
+  const faltosos = allAlunos.filter(a => a[fid] === '1');
+  let html = '';
+  SALAS_ORD.forEach(sala => {
+    const lista = faltosos.filter(a => a.sala === sala).sort((a,b) => a.name.localeCompare(b.name));
+    if(!lista.length) return;
+    html += `<div class="modal-sala-titulo">${sala} — ${lista.length} falta${lista.length>1?'s':''}</div>`;
+    lista.forEach(a => {
+      html += `<div class="modal-aluno-row">
+        <div class="modal-aluno-dot"></div>
+        <span>${a.name}</span>
+      </div>`;
+    });
+  });
+
+  document.getElementById('modalFaltasBody').innerHTML = html || '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhuma falta neste dia!</div>';
+  document.getElementById('modalFaltas').classList.add('open');
+}
+
+function fecharModalFaltas(){
+  document.getElementById('modalFaltas').classList.remove('open');
+}
+
 const MESES = {
   'FEVEREIRO': [
     {label:'02/02',fid:'fldRCNNU0lMP7ui9K'},{label:'03/02',fid:'fldQ9iiIQLHPKDjNN'},
