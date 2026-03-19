@@ -499,6 +499,15 @@ body::before {
         <div class="page-sub">Alunos e frequência por sala</div>
       </div>
       <div id="turmasGrid"></div>
+
+      <div class="panel" style="margin-top:20px">
+        <div class="panel-header">
+          <div class="panel-title">Média de Frequência por Sala</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chartTurmas"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -617,6 +626,45 @@ function renderTurmas(){
   }).join('');
 
   document.getElementById('turmasGrid').innerHTML = `<div class="turmas-grid">${cards}</div>`;
+
+  // Gráfico de barras vertical
+  const medias = SALAS.map(sala => {
+    const alunos = allAlunos.filter(a => a.sala === sala);
+    if(!alunos.length) return 0;
+    let p = 0, t = 0;
+    DATAS.forEach(d => { alunos.forEach(a => { t++; if(a[d.fid] !== '1') p++; }); });
+    return t > 0 ? Math.round((p/t)*100) : 0;
+  });
+
+  const ctx = document.getElementById('chartTurmas');
+  if(window._chartTurmas) window._chartTurmas.destroy();
+  window._chartTurmas = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: SALAS,
+      datasets:[{
+        label: 'Frequência %',
+        data: medias,
+        backgroundColor: medias.map(v => v >= 85 ? '#4ADE80' : v >= 70 ? '#EAB308' : '#EF4444'),
+        borderRadius: 6,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label: c => ` ${c.raw}%` } }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{family:'DM Sans',size:12},color:'#78716C'} },
+        y:{
+          min:0, max:100,
+          grid:{color:'#E7E2DA'},
+          ticks:{ font:{family:'DM Sans',size:11}, color:'#78716C', callback: v => v+'%' }
+        }
+      }
+    }
+  });
 }
 
 function sair(){
