@@ -526,19 +526,26 @@ async function loadData(){
     console.log('Total registros recebidos:', records.length);
     if(records.length > 0) console.log('Primeiro registro:', JSON.stringify(records[0]).substring(0,200));
     allAlunos = records.map(r => {
-      const f = r.cellValuesByFieldId || r.fields || {};
+      // O servidor proxy retorna dados do Airtable com 'fields' (nomes) não fieldIds
+      const f = r.fields || r.cellValuesByFieldId || {};
       const gs = k => {
         const v = f[k];
         if(v === null || v === undefined || v === '') return '';
         if(typeof v === 'object') return v.name || '';
         return String(v).trim();
       };
-      const sed = gs('fldYsHI4kJVXHe3fj');
+      // Usar nomes dos campos pois o servidor retorna fields por nome
+      const sed = gs('SED') || gs('fldYsHI4kJVXHe3fj') || '';
       if(sed === 'TR' || sed === 'BX TR' || sed === 'NCOM' || sed === 'REM') return null;
-      const name = gs('fldX4StGQ7R3CGA3k').replace(/\n/g,'').trim();
+      const name = (gs('Name') || gs('fldX4StGQ7R3CGA3k') || '').replace(/\n/g,'').trim();
       if(!name) return null;
-      const base = { name, sala: gs('fld5ZEt3D5TiWrlmo'), sexo: gs('fldVrMNKIdOJSizL3') };
+      const base = {
+        name,
+        sala: gs('SALAS') || gs('fld5ZEt3D5TiWrlmo') || '',
+        sexo: gs('SEXO')  || gs('fldVrMNKIdOJSizL3') || '',
+      };
       DATAS.forEach(d => {
+        // Tentar pelo fieldId primeiro, depois pelo nome da coluna (ex: "19/3")
         const v = f[d.fid];
         if(v === null || v === undefined) { base[d.fid] = '0'; return; }
         base[d.fid] = typeof v === 'object' ? (v.name || '0') : String(v).trim();
