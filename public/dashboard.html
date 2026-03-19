@@ -492,21 +492,18 @@ body::before {
   </div>
 
   <!-- VIEW TURMAS -->
-  <div id="view-turmas" style="display:none">
-    <div class="main">
-      <div class="page-header">
-        <div class="page-title">Turmas</div>
-        <div class="page-sub">Alunos e frequência por sala</div>
+  <div id="view-turmas" style="display:none" class="main">
+    <div class="page-header">
+      <div class="page-title">Turmas</div>
+      <div class="page-sub">Alunos e frequência por sala</div>
+    </div>
+    <div id="turmasGrid"></div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-header">
+        <div class="panel-title">Média de Frequência por Sala</div>
       </div>
-      <div id="turmasGrid"></div>
-
-      <div class="panel" style="margin-top:20px">
-        <div class="panel-header">
-          <div class="panel-title">Média de Frequência por Sala</div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chartTurmas"></canvas>
-        </div>
+      <div class="chart-wrap">
+        <canvas id="chartTurmas"></canvas>
       </div>
     </div>
   </div>
