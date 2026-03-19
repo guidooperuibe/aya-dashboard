@@ -523,6 +523,8 @@ async function loadData(){
       offset = d.offset || null;
     } while(offset);
 
+    console.log('Total registros recebidos:', records.length);
+    if(records.length > 0) console.log('Primeiro registro:', JSON.stringify(records[0]).substring(0,200));
     allAlunos = records.map(r => {
       // Servidor retorna cellValuesByFieldId OU fields — verificar os dois
       const f = r.cellValuesByFieldId || r.fields || {};
