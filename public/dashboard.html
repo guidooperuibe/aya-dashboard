@@ -527,7 +527,8 @@ async function loadData(){
       const f = r.cellValuesByFieldId || {};
       const gs = k => { const v=f[k]; if(!v) return ''; return typeof v==='object'?v.name||'':String(v).trim(); };
       const sed = gs('fldYsHI4kJVXHe3fj');
-      if(['TR','BX TR','NCOM','REM'].includes(sed)) return null;
+      // Excluir apenas inativos — campo SED pode não vir nos dados do servidor
+      if(sed && ['TR','BX TR','NCOM','REM'].includes(sed)) return null;
       const base = {
         name: gs('fldX4StGQ7R3CGA3k').replace(/\n/g,'').trim(),
         sala: gs('fld5ZEt3D5TiWrlmo'),
