@@ -951,9 +951,13 @@ function showView(id){
 // ═══ DATA ═══
 async function apiFetch(tbl,off){
   const url=`${srv()}/api/data/${tbl}${off?'?offset='+off:''}`;
+  console.log('[apiFetch] URL:', url, '| token:', token?'OK':'VAZIO');
   const r=await fetch(url,{headers:{'x-token':token}});
+  console.log('[apiFetch] Status:', r.status, '| tabela:', tbl);
   if(r.status===401){doLogout();throw new Error('Sessão expirada.');}
-  return r.json();
+  const data = await r.json();
+  console.log('[apiFetch] Registros:', data.records?.length, '| offset:', data.offset);
+  return data;
 }
 async function fetchAll(tbl){let rec=[],off=null;do{const d=await apiFetch(tbl,off);rec=rec.concat(d.records||[]);off=d.offset;}while(off);return rec;}
 
