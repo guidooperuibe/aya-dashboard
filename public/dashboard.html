@@ -448,20 +448,34 @@ body::before {
 <script>
 const DEFAULT_SRV = 'https://aya-dashboard.onrender.com';
 const DATAS = [
-  {label:'02/02',fid:'fldRCNNU0lMP7ui9K'},{label:'03/02',fid:'fldQ9iiIQLHPKDjNN'},
-  {label:'04/02',fid:'fldbVq1WowKvrc9d6'},{label:'05/02',fid:'fld97offYKY6zboio'},
-  {label:'06/02',fid:'fldd6rVJGm0a5n29N'},{label:'09/02',fid:'fldnlq00JYUfAjBSh'},
-  {label:'10/02',fid:'fldTy4zABT2Z3FTEf'},{label:'11/02',fid:'fldPg3sGH7Bi84UEl'},
-  {label:'12/02',fid:'fldsvnEcbhnBp75a2'},{label:'13/02',fid:'fldXeVMdilLWyzhcz'},
-  {label:'23/02',fid:'fldXXBnq9lE4AuY2y'},{label:'24/02',fid:'fldoL16Zg7y4M7ZKB'},
-  {label:'25/02',fid:'fldk0Sif0a76CTWAM'},{label:'26/02',fid:'fldl10D1yb4jOL8YE'},
-  {label:'02/03',fid:'fldUrgpvsig7OQhev'},{label:'03/03',fid:'fldL9a3XgR8YIN2wJ'},
-  {label:'04/03',fid:'fld6HNfcp1zWI8psH'},{label:'05/03',fid:'fldUu3PkzmfyAEV8q'},
-  {label:'06/03',fid:'fldq8eQaD247ZOlEL'},{label:'09/03',fid:'fld8NFFAboqsx0es9'},
-  {label:'10/03',fid:'fldrtEx8o1Ly3lNCE'},{label:'11/03',fid:'fldsJCpP5ZbexQsP1'},
-  {label:'12/03',fid:'fldzlWVSAarZHwJto'},{label:'13/03',fid:'fld4uHPMwl3eBKGvc'},
-  {label:'16/03',fid:'fld5qQxd5WQ8VuuPZ'},{label:'17/03',fid:'fldVRiTrWKfaveTvA'},
-  {label:'18/03',fid:'fldXYAdZfDsemNsav'},{label:'19/03',fid:'fldcp22tZjlosokoK'},
+  {label:'02/02',fid:'fldRCNNU0lMP7ui9K',nome:'2/2'},
+  {label:'03/02',fid:'fldQ9iiIQLHPKDjNN',nome:'3/2'},
+  {label:'04/02',fid:'fldbVq1WowKvrc9d6',nome:'4/2'},
+  {label:'05/02',fid:'fld97offYKY6zboio',nome:'5/2'},
+  {label:'06/02',fid:'fldd6rVJGm0a5n29N',nome:'6/2'},
+  {label:'09/02',fid:'fldnlq00JYUfAjBSh',nome:'9/2'},
+  {label:'10/02',fid:'fldTy4zABT2Z3FTEf',nome:'10/2'},
+  {label:'11/02',fid:'fldPg3sGH7Bi84UEl',nome:'11/2'},
+  {label:'12/02',fid:'fldsvnEcbhnBp75a2',nome:'12/2'},
+  {label:'13/02',fid:'fldXeVMdilLWyzhcz',nome:'13/2'},
+  {label:'23/02',fid:'fldXXBnq9lE4AuY2y',nome:'23/2'},
+  {label:'24/02',fid:'fldoL16Zg7y4M7ZKB',nome:'24/2'},
+  {label:'25/02',fid:'fldk0Sif0a76CTWAM',nome:'25/2'},
+  {label:'26/02',fid:'fldl10D1yb4jOL8YE',nome:'26/2'},
+  {label:'02/03',fid:'fldUrgpvsig7OQhev',nome:'2/3'},
+  {label:'03/03',fid:'fldL9a3XgR8YIN2wJ',nome:'3/3'},
+  {label:'04/03',fid:'fld6HNfcp1zWI8psH',nome:'4/3'},
+  {label:'05/03',fid:'fldUu3PkzmfyAEV8q',nome:'5/3'},
+  {label:'06/03',fid:'fldq8eQaD247ZOlEL',nome:'6/3'},
+  {label:'09/03',fid:'fld8NFFAboqsx0es9',nome:'9/3'},
+  {label:'10/03',fid:'fldrtEx8o1Ly3lNCE',nome:'10/3'},
+  {label:'11/03',fid:'fldsJCpP5ZbexQsP1',nome:'11/3'},
+  {label:'12/03',fid:'fldzlWVSAarZHwJto',nome:'12/3'},
+  {label:'13/03',fid:'fld4uHPMwl3eBKGvc',nome:'13/3'},
+  {label:'16/03',fid:'fld5qQxd5WQ8VuuPZ',nome:'16/3'},
+  {label:'17/03',fid:'fldVRiTrWKfaveTvA',nome:'17/3'},
+  {label:'18/03',fid:'fldXYAdZfDsemNsav',nome:'18/3'},
+  {label:'19/03',fid:'fldcp22tZjlosokoK',nome:'19/3'},
 ];
 const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 const CORES = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
@@ -526,7 +540,6 @@ async function loadData(){
     console.log('Total registros recebidos:', records.length);
     if(records.length > 0) console.log('Primeiro registro:', JSON.stringify(records[0]).substring(0,200));
     allAlunos = records.map(r => {
-      // O servidor proxy retorna dados do Airtable com 'fields' (nomes) não fieldIds
       const f = r.fields || r.cellValuesByFieldId || {};
       const gs = k => {
         const v = f[k];
@@ -534,19 +547,15 @@ async function loadData(){
         if(typeof v === 'object') return v.name || '';
         return String(v).trim();
       };
-      // Usar nomes dos campos pois o servidor retorna fields por nome
-      const sed = gs('SED') || gs('fldYsHI4kJVXHe3fj') || '';
+      const sed = gs('SED');
       if(sed === 'TR' || sed === 'BX TR' || sed === 'NCOM' || sed === 'REM') return null;
-      const name = (gs('Name') || gs('fldX4StGQ7R3CGA3k') || '').replace(/\n/g,'').trim();
+      const name = gs('Name').replace(/\n/g,'').trim();
       if(!name) return null;
-      const base = {
-        name,
-        sala: gs('SALAS') || gs('fld5ZEt3D5TiWrlmo') || '',
-        sexo: gs('SEXO')  || gs('fldVrMNKIdOJSizL3') || '',
-      };
+      const base = { name, sala: gs('SALAS'), sexo: gs('SEXO') };
+      // Guardar valor de cada data usando o NOME do campo (ex: "19/3")
+      // E também pelo fieldId como chave para o seletor funcionar
       DATAS.forEach(d => {
-        // Tentar pelo fieldId primeiro, depois pelo nome da coluna (ex: "19/3")
-        const v = f[d.fid];
+        const v = f[d.nome] !== undefined ? f[d.nome] : f[d.fid];
         if(v === null || v === undefined) { base[d.fid] = '0'; return; }
         base[d.fid] = typeof v === 'object' ? (v.name || '0') : String(v).trim();
       });
