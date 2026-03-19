@@ -415,12 +415,15 @@ body::before {
 
   <div class="sidebar">
     <div class="nav-label">Menu</div>
-    <button class="nav-item active">
+    <button class="nav-item active" id="nav-painel" onclick="showView('painel')">
       <span class="nav-icon">📊</span> Painel
+    </button>
+    <button class="nav-item" id="nav-turmas" onclick="showView('turmas')">
+      <span class="nav-icon">🏫</span> Turmas
     </button>
   </div>
 
-  <div class="main">
+  <div class="main" id="view-painel">
     <div class="page-header">
       <div class="page-title">Painel</div>
       <div class="page-sub">Visão geral — PEI CHAMADA</div>
@@ -574,9 +577,8 @@ async function doLogin(){
 const CORES_TURMA = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
 function showView(v){
-  document.getElementById('painelScreen').querySelector('.main').style.display = v==='painel' ? '' : 'none';
-  const vt = document.getElementById('view-turmas');
-  if(vt) vt.style.display = v==='turmas' ? 'block' : 'none';
+  document.getElementById('view-painel').style.display = v==='painel' ? '' : 'none';
+  document.getElementById('view-turmas').style.display = v==='turmas' ? 'block' : 'none';
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   const nb = document.getElementById('nav-'+v);
   if(nb) nb.classList.add('active');
