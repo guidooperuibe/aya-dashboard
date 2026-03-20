@@ -315,6 +315,12 @@ body::before {
   @media(max-width:900px){ .turmas-grid { grid-template-columns:repeat(2,1fr); } }
   @media(max-width:500px){ .turmas-grid { grid-template-columns:1fr 1fr; } }
 
+  /* Badge */
+  .panel-badge {
+    font-size:11px; background:var(--cream); border:1px solid var(--line);
+    border-radius:20px; padding:3px 10px; color:var(--muted); font-weight:500;
+  }
+
   /* Responsivo */
 @media(max-width:700px){
   .login-left { display:none; }
@@ -482,6 +488,9 @@ body::before {
     </button>
     <button class="nav-item" id="nav-frequencia" onclick="showView('frequencia')">
       <span class="nav-icon">📅</span> Frequência
+    </button>
+    <button class="nav-item" id="nav-alertas" onclick="showView('alertas')">
+      <span class="nav-icon">🚨</span> Alertas
     </button>
   </div>
 
@@ -663,6 +672,46 @@ body::before {
     </div>
   </div>
 
+  <!-- VIEW ALERTAS -->
+  <div id="view-alertas" style="display:none" class="main">
+    <div class="page-header">
+      <div class="page-title">Alertas</div>
+      <div class="page-sub">Monitoramento de frequência crítica</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row" style="grid-template-columns:repeat(2,1fr);margin-bottom:24px">
+      <div class="kpi-card" style="--card-color:#C0392B;background:#C0392B;border-color:#C0392B">
+        <div class="kpi-label" style="color:rgba(255,255,255,.8)">⚠️ Abaixo de 75%</div>
+        <div class="kpi-value" id="altAbaixo75" style="color:#fff">—</div>
+        <div class="kpi-detail" id="altAbaixo75Det" style="color:rgba(255,255,255,.7)">frequência geral</div>
+      </div>
+      <div class="kpi-card" style="--card-color:#EA580C;background:#EA580C;border-color:#EA580C;animation-delay:.08s">
+        <div class="kpi-label" style="color:rgba(255,255,255,.8)">🔴 2 Dias Seguidos</div>
+        <div class="kpi-value" id="altDiasSeguidos" style="color:#fff">—</div>
+        <div class="kpi-detail" id="altDiasSeguidosDet" style="color:rgba(255,255,255,.7)">faltaram consecutivamente</div>
+      </div>
+    </div>
+
+    <!-- Lista abaixo de 75% -->
+    <div class="panel" style="margin-bottom:20px">
+      <div class="panel-header">
+        <div class="panel-title">⚠️ Frequência Abaixo de 75% — Geral</div>
+        <div class="panel-badge" id="altBadge75">0 alunos</div>
+      </div>
+      <div id="altLista75"></div>
+    </div>
+
+    <!-- Lista 2 dias seguidos -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🔴 Alunos com 2 ou mais Faltas Consecutivas</div>
+        <div class="panel-badge" id="altBadgeConsec">0 alunos</div>
+      </div>
+      <div id="altListaConsec"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- MODAL FALTAS -->
@@ -760,7 +809,7 @@ async function doLogin(){
 const CORES_TURMA = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
 function showView(v){
-  ['painel','turmas','alunos','frequencia'].forEach(id => {
+  ['painel','turmas','alunos','frequencia','alertas'].forEach(id => {
     const el = document.getElementById('view-'+id);
     if(el) el.style.display = v===id ? (id==='painel'?'':'block') : 'none';
   });
@@ -770,6 +819,7 @@ function showView(v){
   if(v==='turmas') renderTurmas();
   if(v==='alunos') renderAlunos();
   if(v==='frequencia') renderFrequencia();
+  if(v==='alertas') renderAlertas();
 }
 
 function calcFreq(aluno){
@@ -1064,6 +1114,95 @@ function renderAlunosCriticos(){
         }).join('')}
       </tbody>
     </table>`;
+}
+
+function renderAlertas(){
+  const total = allAlunos.length;
+
+  // ── ALERTA 1: Abaixo de 75% geral ──
+  const criticos = allAlunos
+    .map(a => ({ ...a, freq: calcFreq(a) }))
+    .filter(a => a.freq < 75)
+    .sort((a,b) => a.freq - b.freq);
+
+  document.getElementById('altAbaixo75').textContent = criticos.length;
+  document.getElementById('altAbaixo75Det').textContent = `${Math.round((criticos.length/total)*100)}% dos alunos`;
+  document.getElementById('altBadge75').textContent = `${criticos.length} alunos`;
+
+  if(criticos.length === 0){
+    document.getElementById('altLista75').innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhum aluno abaixo de 75%</div>';
+  } else {
+    document.getElementById('altLista75').innerHTML = `
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:var(--cream)">
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Nome</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Turma</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Frequência</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Faltas</th>
+        </tr></thead>
+        <tbody>${criticos.map(a => {
+          const diasValidos = DATAS.filter(d => DIAS_VALIDOS.has(d.fid));
+          const faltas = diasValidos.filter(d => a[d.fid]==='1').length;
+          const cor = a.freq < 50 ? '#991B1B' : '#B45309';
+          return `<tr style="border-bottom:1px solid var(--line)">
+            <td style="padding:11px 16px;font-size:13px;font-weight:500">${a.name}</td>
+            <td style="padding:11px 16px;font-size:13px;color:var(--muted)">${a.sala}</td>
+            <td style="padding:11px 16px;font-size:13px;font-weight:700;color:${cor}">${a.freq}%</td>
+            <td style="padding:11px 16px;font-size:13px;color:var(--muted)">${faltas} dia${faltas!==1?'s':''}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  }
+
+  // ── ALERTA 2: 2 ou mais dias consecutivos ──
+  // Pegar apenas dias válidos em ordem
+  const diasOrdem = DATAS.filter(d => DIAS_VALIDOS.has(d.fid));
+
+  const consecutivos = allAlunos.map(a => {
+    let maxConsec = 0, consec = 0, diasConsec = [], melhorDias = [];
+    diasOrdem.forEach((d, i) => {
+      if(a[d.fid] === '1'){
+        consec++;
+        diasConsec.push(d.label);
+        if(consec > maxConsec){
+          maxConsec = consec;
+          melhorDias = [...diasConsec];
+        }
+      } else {
+        consec = 0;
+        diasConsec = [];
+      }
+    });
+    return { ...a, maxConsec, melhorDias };
+  }).filter(a => a.maxConsec >= 2)
+    .sort((a,b) => b.maxConsec - a.maxConsec || a.sala.localeCompare(b.sala));
+
+  document.getElementById('altDiasSeguidos').textContent = consecutivos.length;
+  document.getElementById('altDiasSeguidosDet').textContent = `${consecutivos.length} aluno${consecutivos.length!==1?'s':''} em alerta`;
+  document.getElementById('altBadgeConsec').textContent = `${consecutivos.length} alunos`;
+
+  if(consecutivos.length === 0){
+    document.getElementById('altListaConsec').innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhum aluno com faltas consecutivas</div>';
+  } else {
+    document.getElementById('altListaConsec').innerHTML = `
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:var(--cream)">
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Nome</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Turma</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Dias Seguidos</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Período</th>
+        </tr></thead>
+        <tbody>${consecutivos.map(a => {
+          const cor = a.maxConsec >= 5 ? '#991B1B' : a.maxConsec >= 3 ? '#B45309' : '#EA580C';
+          return `<tr style="border-bottom:1px solid var(--line)">
+            <td style="padding:11px 16px;font-size:13px;font-weight:500">${a.name}</td>
+            <td style="padding:11px 16px;font-size:13px;color:var(--muted)">${a.sala}</td>
+            <td style="padding:11px 16px;font-size:13px;font-weight:700;color:${cor}">${a.maxConsec} dias</td>
+            <td style="padding:11px 16px;font-size:12px;color:var(--muted)">${a.melhorDias[0]} → ${a.melhorDias[a.melhorDias.length-1]}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  }
 }
 
 async function atualizarDados(){
