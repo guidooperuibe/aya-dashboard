@@ -705,7 +705,7 @@ body::before {
     <!-- Lista 2 dias seguidos -->
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">🔴 Alunos com 2 ou mais Faltas Consecutivas</div>
+        <div class="panel-title">🔴 Faltas Consecutivas — Últimos 7 dias letivos</div>
         <div class="panel-badge" id="altBadgeConsec">0 alunos</div>
       </div>
       <div id="altListaConsec"></div>
@@ -1154,9 +1154,10 @@ function renderAlertas(){
       </table>`;
   }
 
-  // ── ALERTA 2: 2 ou mais dias consecutivos ──
-  // Pegar apenas dias válidos em ordem
-  const diasOrdem = DATAS.filter(d => DIAS_VALIDOS.has(d.fid));
+  // ── ALERTA 2: 2 ou mais dias consecutivos nos últimos 7 dias letivos ──
+  const todosValidos = DATAS.filter(d => DIAS_VALIDOS.has(d.fid));
+  const diasOrdem = todosValidos.slice(-7);
+  const periodoLabel = diasOrdem.length > 0 ? `${diasOrdem[0].label} → ${diasOrdem[diasOrdem.length-1].label}` : '';
 
   const consecutivos = allAlunos.map(a => {
     let maxConsec = 0, consec = 0, diasConsec = [], melhorDias = [];
@@ -1178,7 +1179,7 @@ function renderAlertas(){
     .sort((a,b) => b.maxConsec - a.maxConsec || a.sala.localeCompare(b.sala));
 
   document.getElementById('altDiasSeguidos').textContent = consecutivos.length;
-  document.getElementById('altDiasSeguidosDet').textContent = `${consecutivos.length} aluno${consecutivos.length!==1?'s':''} em alerta`;
+  document.getElementById('altDiasSeguidosDet').textContent = `${consecutivos.length} aluno${consecutivos.length!==1?'s':''} — últimos 7 dias`;
   document.getElementById('altBadgeConsec').textContent = `${consecutivos.length} alunos`;
 
   if(consecutivos.length === 0){
