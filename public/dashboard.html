@@ -1265,7 +1265,8 @@ async function loadData(){
       const gs = k => { const v=f[k]; if(!v&&v!==0) return ''; if(typeof v==='object') return v.name||''; return String(v).trim(); };
       const name = gs('Name').replace(/\n/g,'').trim();
       if(!name) return null;
-      const base = { name, sala: gs('SALAS'), sexo: gs('SEXO'), sed: gs('SED'), fone: gs('fldZSUOr2h1iHOP2R') };
+      const foneRaw = f['fldZSUOr2h1iHOP2R'] || f['FONE PAIS 2026'] || '';
+      const base = { name, sala: gs('SALAS'), sexo: gs('SEXO'), sed: gs('SED'), fone: typeof foneRaw === 'string' ? foneRaw : String(foneRaw||'') };
       DATAS.forEach(d => {
         const v = f[d.fid] !== undefined ? f[d.fid] : (f[d.nome] !== undefined ? f[d.nome] : null);
         base[d.fid] = v ? (typeof v==='object'?v.name||'0':String(v).trim()) : '0';
@@ -1285,7 +1286,8 @@ async function loadData(){
       if(sed === 'TR' || sed === 'BX TR' || sed === 'NCOM' || sed === 'REM') return null;
       const name = gs('Name').replace(/\n/g,'').trim();
       if(!name) return null;
-      const base = { name, sala: gs('SALAS'), sexo: gs('SEXO'), fone: gs('fldZSUOr2h1iHOP2R') };
+      const foneRaw2 = f['fldZSUOr2h1iHOP2R'] || f['FONE PAIS 2026'] || '';
+      const base = { name, sala: gs('SALAS'), sexo: gs('SEXO'), fone: typeof foneRaw2 === 'string' ? foneRaw2 : String(foneRaw2||'') };
       // Guardar valor de cada data usando o NOME do campo (ex: "19/3")
       // E também pelo fieldId como chave para o seletor funcionar
       DATAS.forEach(d => {
