@@ -619,10 +619,10 @@ body::before {
         <div class="kpi-value" id="fqMediaGeral">—</div>
         <div class="kpi-detail">de todos os alunos ativos</div>
       </div>
-      <div class="kpi-card" style="--card-color:var(--red);animation-delay:.08s">
-        <div class="kpi-label">Abaixo de 75%</div>
-        <div class="kpi-value" id="fqAbaixo75">—</div>
-        <div class="kpi-detail" id="fqAbaixo75Det">alunos em risco</div>
+      <div class="kpi-card" style="--card-color:var(--red);animation-delay:.08s;background:#C0392B;border-color:#C0392B">
+        <div class="kpi-label" style="color:rgba(255,255,255,.8)">Abaixo de 75%</div>
+        <div class="kpi-value" id="fqAbaixo75" style="color:#fff">—</div>
+        <div class="kpi-detail" id="fqAbaixo75Det" style="color:rgba(255,255,255,.7)">alunos em risco</div>
       </div>
       <div class="kpi-card" style="--card-color:var(--green);animation-delay:.16s">
         <div class="kpi-label">Frequência 100%</div>
@@ -653,7 +653,7 @@ body::before {
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">Alunos com Frequência Crítica</div>
-        <select class="date-select" id="fqMesSel" onchange="renderAlunosCriticos()">
+        <select class="date-select" id="fqMesSel" onchange="renderFrequencia()">
           <option value="todos">Todos os meses</option>
           <option value="FEVEREIRO">Fevereiro</option>
           <option value="MARÇO">Março</option>
@@ -959,10 +959,13 @@ const MESES = {
 };
 
 function renderFrequencia(){
-  // KPIs gerais
+  const mesSel = document.getElementById('fqMesSel')?.value || 'todos';
+  const datasKPI = mesSel === 'todos' ? DATAS : (MESES[mesSel] || DATAS);
+
+  // KPIs respondem ao mês selecionado
   const total = allAlunos.length;
-  let somaFreq = 0;
-  const freqs = allAlunos.map(a => { const f=calcFreq(a); somaFreq+=f; return f; });
+  const freqs = allAlunos.map(a => calcFreqMes(a, datasKPI));
+  const somaFreq = freqs.reduce((s,f) => s+f, 0);
   const media = total > 0 ? Math.round(somaFreq/total) : 0;
   const abaixo75 = freqs.filter(f => f < 75).length;
   const perfeita = freqs.filter(f => f === 100).length;
