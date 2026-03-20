@@ -1196,8 +1196,11 @@ function renderAlertas(){
         </tr></thead>
         <tbody>${consecutivos.map(a => {
           const cor = a.maxConsec >= 5 ? '#991B1B' : a.maxConsec >= 3 ? '#B45309' : '#EA580C';
-          const fone = a.fone ? a.fone.replace(/\D/g,'') : '';
-          const wppNum = fone.startsWith('55') ? fone : '55' + fone;
+          // Limpar número — remover tudo que não é dígito
+          const foneRaw = a.fone || '';
+          const fone = foneRaw.replace(/\D/g,'');
+          // Garantir código do Brasil
+          const wppNum = fone.startsWith('55') && fone.length >= 12 ? fone : '55' + fone;
           const wppBtn = fone
             ? `<a href="https://wa.me/${wppNum}" target="_blank"
                 style="display:inline-flex;align-items:center;gap:5px;background:#25D366;color:#fff;
