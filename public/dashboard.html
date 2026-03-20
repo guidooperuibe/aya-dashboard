@@ -192,6 +192,15 @@ body::before {
   cursor:pointer; transition:all .2s;
 }
 .topbar-sair:hover { border-color:var(--accent); color:var(--accent); }
+  .topbar-atualizar {
+    background:none; border:1px solid rgba(255,255,255,.15); color:#FFFFFF;
+    border-radius:6px; padding:5px 12px; font-family:'DM Sans',sans-serif;
+    font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:all .2s; margin-right:4px;
+  }
+  .topbar-atualizar:hover { border-color:#4ADE80; color:#4ADE80; }
+  .topbar-atualizar.girando { animation: girar .8s linear infinite; }
+  @keyframes girar { to { transform: rotate(360deg); } }
 
 /* Sidebar */
 .sidebar {
@@ -317,6 +326,51 @@ body::before {
   .kpi-row { grid-template-columns:1fr 1fr; }
   .grid2 { grid-template-columns:1fr; }
 }
+  /* Modal faltas */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.5);
+    z-index:1000; display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal-box {
+    background:var(--white); border-radius:16px;
+    width:100%; max-width:560px; max-height:80vh;
+    display:flex; flex-direction:column; overflow:hidden;
+    animation:fadeUp .3s ease;
+  }
+  .modal-header {
+    padding:20px 24px; border-bottom:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    background:#C0392B; border-radius:16px 16px 0 0;
+  }
+  .modal-header-title {
+    font-family:'Playfair Display',serif;
+    font-size:18px; color:#fff; font-weight:700;
+  }
+  .modal-header-sub { font-size:12px; color:rgba(255,255,255,.8); margin-top:2px; }
+  .modal-close {
+    background:rgba(255,255,255,.2); border:none; color:#fff;
+    width:32px; height:32px; border-radius:50%; font-size:16px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover { background:rgba(255,255,255,.3); }
+  .modal-body { overflow-y:auto; padding:16px 24px; }
+  .modal-sala-titulo {
+    font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--muted); font-weight:600; margin:16px 0 8px;
+    padding-bottom:6px; border-bottom:1px solid var(--line);
+  }
+  .modal-sala-titulo:first-child { margin-top:0; }
+  .modal-aluno-row {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 0; border-bottom:1px solid var(--line);
+    font-size:13px; color:var(--ink);
+  }
+  .modal-aluno-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:#C0392B; flex-shrink:0;
+  }
 </style>
 </head>
 <body>
@@ -411,7 +465,8 @@ body::before {
     <div class="topbar-brand">AYA Dashboard</div>
     <div class="topbar-dot"></div>
     <div class="topbar-user" id="topUser"></div>
-    <button class="topbar-sair" onclick="sair()">Sair</button>
+    <button class="topbar-atualizar" id="btnAtualizar" onclick="atualizarDados()">↻ Atualizar</button>
+  <button class="topbar-sair" onclick="sair()">Sair</button>
   </div>
 
   <div class="sidebar">
@@ -421,6 +476,12 @@ body::before {
     </button>
     <button class="nav-item" id="nav-turmas" onclick="showView('turmas')">
       <span class="nav-icon">🏫</span> Turmas
+    </button>
+    <button class="nav-item" id="nav-alunos" onclick="showView('alunos')">
+      <span class="nav-icon">👤</span> Alunos
+    </button>
+    <button class="nav-item" id="nav-frequencia" onclick="showView('frequencia')">
+      <span class="nav-icon">📅</span> Frequência
     </button>
   </div>
 
@@ -444,10 +505,10 @@ body::before {
         <div class="kpi-value" id="kpiPresentes">—</div>
         <div class="kpi-detail" id="kpiPresentesDet">—</div>
       </div>
-      <div class="kpi-card" style="--card-color:var(--red);animation-delay:.16s">
-        <div class="kpi-label">Faltas</div>
-        <div class="kpi-value" id="kpiFaltas">—</div>
-        <div class="kpi-detail" id="kpiFaltasDet">—</div>
+      <div class="kpi-card" id="cardFaltas" style="--card-color:var(--red);animation-delay:.16s;background:#C0392B;cursor:pointer;border-color:#C0392B" onclick="abrirModalFaltas()">
+        <div class="kpi-label" style="color:rgba(255,255,255,.8)">🔊 Faltas</div>
+        <div class="kpi-value" id="kpiFaltas" style="color:#fff">—</div>
+        <div class="kpi-detail" id="kpiFaltasDet" style="color:rgba(255,255,255,.7)">—</div>
       </div>
     </div>
 
@@ -493,25 +554,129 @@ body::before {
   </div>
 
   <!-- VIEW TURMAS -->
-  <div id="view-turmas" style="display:none">
-    <div class="main">
-      <div class="page-header">
-        <div class="page-title">Turmas</div>
-        <div class="page-sub">Alunos e frequência por sala</div>
+  <div id="view-turmas" style="display:none" class="main">
+    <div class="page-header">
+      <div class="page-title">Turmas</div>
+      <div class="page-sub">Alunos e frequência por sala</div>
+    </div>
+    <div id="turmasGrid"></div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-header">
+        <div class="panel-title">Média de Frequência por Sala</div>
       </div>
-      <div id="turmasGrid"></div>
-
-      <div class="panel" style="margin-top:20px">
-        <div class="panel-header">
-          <div class="panel-title">Média de Frequência por Sala</div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chartTurmas"></canvas>
-        </div>
+      <div class="chart-wrap">
+        <canvas id="chartTurmas"></canvas>
       </div>
     </div>
   </div>
 
+  <!-- VIEW ALUNOS -->
+  <div id="view-alunos" style="display:none" class="main">
+    <div class="page-header">
+      <div class="page-title">Alunos</div>
+      <div class="page-sub">Cadastro e frequência individual</div>
+    </div>
+    <!-- Filtros -->
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <input type="text" id="aluBusca" placeholder="🔍 Buscar por nome..." oninput="renderAlunos()"
+        style="flex:1;min-width:200px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;">
+      <select id="aluSala" onchange="renderAlunos()" class="date-select">
+        <option value="">Todas as salas</option>
+        <option>6A</option><option>6B</option><option>7A</option><option>7B</option>
+        <option>8A</option><option>8B</option><option>9A</option><option>9B</option>
+      </select>
+      <select id="aluStatus" onchange="renderAlunos()" class="date-select">
+        <option value="">Todos os status</option>
+        <option>ATIVO</option><option>TR</option><option>REM</option><option>NCOM</option>
+      </select>
+    </div>
+    <div class="panel" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:var(--cream)">
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Nome</th>
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Turma</th>
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Frequência</th>
+            <th style="padding:12px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Status</th>
+          </tr>
+        </thead>
+        <tbody id="alunosTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VIEW FREQUÊNCIA -->
+  <div id="view-frequencia" style="display:none" class="main">
+    <div class="page-header">
+      <div class="page-title">Frequência</div>
+      <div class="page-sub">Visão geral e análise mensal</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi-card" style="--card-color:var(--accent)">
+        <div class="kpi-label">Frequência Média Geral</div>
+        <div class="kpi-value" id="fqMediaGeral">—</div>
+        <div class="kpi-detail">de todos os alunos ativos</div>
+      </div>
+      <div class="kpi-card" style="--card-color:var(--red);animation-delay:.08s">
+        <div class="kpi-label">Abaixo de 75%</div>
+        <div class="kpi-value" id="fqAbaixo75">—</div>
+        <div class="kpi-detail" id="fqAbaixo75Det">alunos em risco</div>
+      </div>
+      <div class="kpi-card" style="--card-color:var(--green);animation-delay:.16s">
+        <div class="kpi-label">Frequência 100%</div>
+        <div class="kpi-value" id="fqPerfeita">—</div>
+        <div class="kpi-detail">presença perfeita</div>
+      </div>
+    </div>
+
+    <!-- Frequência por turma -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Frequência por Turma</div>
+      </div>
+      <div id="fqBarTurmas"></div>
+    </div>
+
+    <!-- Frequência mensal -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Frequência Mensal</div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartMensal"></canvas>
+      </div>
+    </div>
+
+    <!-- Alunos críticos por mês -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Alunos com Frequência Crítica</div>
+        <select class="date-select" id="fqMesSel" onchange="renderAlunosCriticos()">
+          <option value="todos">Todos os meses</option>
+          <option value="FEVEREIRO">Fevereiro</option>
+          <option value="MARÇO">Março</option>
+        </select>
+      </div>
+      <div id="fqListaCriticos"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL FALTAS -->
+<div class="modal-overlay" id="modalFaltas" onclick="if(event.target===this) fecharModalFaltas()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-header-title">🔊 Lista de Faltas</div>
+        <div class="modal-header-sub" id="modalFaltasSub">—</div>
+      </div>
+      <button class="modal-close" onclick="fecharModalFaltas()">✕</button>
+    </div>
+    <div class="modal-body" id="modalFaltasBody"></div>
+  </div>
 </div>
 
 <script>
@@ -545,11 +710,19 @@ const DATAS = [
   {label:'17/03',fid:'fldVRiTrWKfaveTvA',nome:'17/3'},
   {label:'18/03',fid:'fldXYAdZfDsemNsav',nome:'18/3'},
   {label:'19/03',fid:'fldcp22tZjlosokoK',nome:'19/3'},
+  {label:'20/03',fid:'fldrvCAnlzBxLZheg',nome:'20/3'},
+  {label:'23/03',fid:'fldQ5HW6CnAMEmWvf',nome:'23/3'},
+  {label:'24/03',fid:'fldxobQE4nKyzjTtk',nome:'24/3'},
+  {label:'25/03',fid:'fldzkjyEvgSRDRDWE',nome:'25/3'},
+  {label:'26/03',fid:'fldq2qFpM88m509Hb',nome:'26/3'},
+  {label:'27/03',fid:'fld2SqTBOeKkiNpPh',nome:'27/3'},
+  {label:'30/03',fid:'fld6oWAEa749orm56',nome:'30/3'},
+  {label:'31/03',fid:'fldc0N8Hz48X72KwM',nome:'31/3'},
 ];
 const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 const CORES = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
-let token = null, allAlunos = [], chartGenero = null, chartFreq = null;
+let token = null, allAlunos = [], allAlunosTotal = [], chartGenero = null, chartFreq = null;
 
 function srv(){ return localStorage.getItem('aya_srv') || DEFAULT_SRV; }
 
@@ -587,12 +760,72 @@ async function doLogin(){
 const CORES_TURMA = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
 function showView(v){
-  document.getElementById('view-painel').style.display = v==='painel' ? '' : 'none';
-  document.getElementById('view-turmas').style.display = v==='turmas' ? 'block' : 'none';
+  ['painel','turmas','alunos','frequencia'].forEach(id => {
+    const el = document.getElementById('view-'+id);
+    if(el) el.style.display = v===id ? (id==='painel'?'':'block') : 'none';
+  });
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   const nb = document.getElementById('nav-'+v);
   if(nb) nb.classList.add('active');
   if(v==='turmas') renderTurmas();
+  if(v==='alunos') renderAlunos();
+  if(v==='frequencia') renderFrequencia();
+}
+
+function calcFreq(aluno){
+  let p=0,t=0;
+  // Só conta dias que já ocorreram (pelo menos 1 aluno faltou = dia real)
+  DATAS.forEach(d=>{
+    if(!DIAS_VALIDOS.has(d.fid)) return;
+    t++;
+    if(aluno[d.fid]!=='1') p++;
+  });
+  return t>0?Math.round((p/t)*100):0;
+}
+
+function calcFreqMes(aluno, datas){
+  let p=0, t=0;
+  datas.forEach(d => {
+    if(!DIAS_VALIDOS.has(d.fid)) return;
+    t++;
+    if(aluno[d.fid] !== '1') p++;
+  });
+  return t > 0 ? Math.round((p/t)*100) : 0;
+}
+
+function renderAlunos(){
+  const busca = (document.getElementById('aluBusca')?.value||'').toLowerCase();
+  const sala  = document.getElementById('aluSala')?.value||'';
+  const status= document.getElementById('aluStatus')?.value||'';
+
+  // Incluir todos os registros (incluindo TR, REM, NCOM)
+  let lista = allAlunosTotal.filter(a => {
+    if(busca && !a.name.toLowerCase().includes(busca)) return false;
+    if(sala && a.sala !== sala) return false;
+    if(status && a.sed !== status) return false;
+    return true;
+  }).sort((a,b) => a.sala.localeCompare(b.sala) || a.name.localeCompare(b.name));
+
+  const STATUS_COR = {
+    'ATIVO':  {bg:'#DCFCE7',color:'#166534'},
+    'TR':     {bg:'#FEF9C3',color:'#854D0E'},
+    'REM':    {bg:'#DBEAFE',color:'#1E40AF'},
+    'NCOM':   {bg:'#F3F4F6',color:'#374151'},
+  };
+
+  document.getElementById('alunosTbody').innerHTML = lista.map(a => {
+    const freq = calcFreq(a);
+    const cor = freq >= 85 ? '#166534' : freq >= 70 ? '#854D0E' : '#991B1B';
+    const sc = STATUS_COR[a.sed] || {bg:'#F3F4F6',color:'#374151'};
+    return `<tr style="border-bottom:1px solid var(--line)">
+      <td style="padding:12px 16px;font-size:13px;font-weight:500;color:var(--ink)">${a.name}</td>
+      <td style="padding:12px 16px;font-size:13px;color:var(--muted)">${a.sala||'—'}</td>
+      <td style="padding:12px 16px;font-size:13px;font-weight:600;color:${cor}">${freq}%</td>
+      <td style="padding:12px 16px">
+        <span style="background:${sc.bg};color:${sc.color};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${a.sed||'—'}</span>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--muted)">Nenhum aluno encontrado</td></tr>';
 }
 
 function renderTurmas(){
@@ -668,6 +901,179 @@ function renderTurmas(){
   });
 }
 
+// Meses com seus campos
+function abrirModalFaltas(){
+  const fid = document.getElementById('kpiDataSel')?.value;
+  if(!fid || !allAlunos.length) return;
+  const data = DATAS.find(d => d.fid === fid);
+  const SALAS_ORD = ['6A','6B','7A','7B','8A','8B','9A','9B'];
+
+  document.getElementById('modalFaltasSub').textContent =
+    `${data?.label||'—'} — ${allAlunos.filter(a=>a[fid]==='1').length} faltosos`;
+
+  const faltosos = allAlunos.filter(a => a[fid] === '1');
+  let html = '';
+  SALAS_ORD.forEach(sala => {
+    const lista = faltosos.filter(a => a.sala === sala).sort((a,b) => a.name.localeCompare(b.name));
+    if(!lista.length) return;
+    html += `<div class="modal-sala-titulo">${sala} — ${lista.length} falta${lista.length>1?'s':''}</div>`;
+    lista.forEach(a => {
+      html += `<div class="modal-aluno-row">
+        <div class="modal-aluno-dot"></div>
+        <span>${a.name}</span>
+      </div>`;
+    });
+  });
+
+  document.getElementById('modalFaltasBody').innerHTML = html || '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhuma falta neste dia!</div>';
+  document.getElementById('modalFaltas').classList.add('open');
+}
+
+function fecharModalFaltas(){
+  document.getElementById('modalFaltas').classList.remove('open');
+}
+
+const MESES = {
+  'FEVEREIRO': [
+    {label:'02/02',fid:'fldRCNNU0lMP7ui9K'},{label:'03/02',fid:'fldQ9iiIQLHPKDjNN'},
+    {label:'04/02',fid:'fldbVq1WowKvrc9d6'},{label:'05/02',fid:'fld97offYKY6zboio'},
+    {label:'06/02',fid:'fldd6rVJGm0a5n29N'},{label:'09/02',fid:'fldnlq00JYUfAjBSh'},
+    {label:'10/02',fid:'fldTy4zABT2Z3FTEf'},{label:'11/02',fid:'fldPg3sGH7Bi84UEl'},
+    {label:'12/02',fid:'fldsvnEcbhnBp75a2'},{label:'13/02',fid:'fldXeVMdilLWyzhcz'},
+    {label:'23/02',fid:'fldXXBnq9lE4AuY2y'},{label:'24/02',fid:'fldoL16Zg7y4M7ZKB'},
+    {label:'25/02',fid:'fldk0Sif0a76CTWAM'},{label:'26/02',fid:'fldl10D1yb4jOL8YE'},
+  ],
+  'MARÇO': [
+    {label:'02/03',fid:'fldUrgpvsig7OQhev'},{label:'03/03',fid:'fldL9a3XgR8YIN2wJ'},
+    {label:'04/03',fid:'fld6HNfcp1zWI8psH'},{label:'05/03',fid:'fldUu3PkzmfyAEV8q'},
+    {label:'06/03',fid:'fldq8eQaD247ZOlEL'},{label:'09/03',fid:'fld8NFFAboqsx0es9'},
+    {label:'10/03',fid:'fldrtEx8o1Ly3lNCE'},{label:'11/03',fid:'fldsJCpP5ZbexQsP1'},
+    {label:'12/03',fid:'fldzlWVSAarZHwJto'},{label:'13/03',fid:'fld4uHPMwl3eBKGvc'},
+    {label:'16/03',fid:'fld5qQxd5WQ8VuuPZ'},{label:'17/03',fid:'fldVRiTrWKfaveTvA'},
+    {label:'18/03',fid:'fldXYAdZfDsemNsav'},{label:'19/03',fid:'fldcp22tZjlosokoK'},
+    {label:'20/03',fid:'fldrvCAnlzBxLZheg'},{label:'23/03',fid:'fldQ5HW6CnAMEmWvf'},
+    {label:'24/03',fid:'fldxobQE4nKyzjTtk'},{label:'25/03',fid:'fldzkjyEvgSRDRDWE'},
+    {label:'26/03',fid:'fldq2qFpM88m509Hb'},{label:'27/03',fid:'fld2SqTBOeKkiNpPh'},
+    {label:'30/03',fid:'fld6oWAEa749orm56'},{label:'31/03',fid:'fldc0N8Hz48X72KwM'},
+  ],
+};
+
+function renderFrequencia(){
+  // KPIs gerais
+  const total = allAlunos.length;
+  let somaFreq = 0;
+  const freqs = allAlunos.map(a => { const f=calcFreq(a); somaFreq+=f; return f; });
+  const media = total > 0 ? Math.round(somaFreq/total) : 0;
+  const abaixo75 = freqs.filter(f => f < 75).length;
+  const perfeita = freqs.filter(f => f === 100).length;
+
+  document.getElementById('fqMediaGeral').textContent = media + '%';
+  document.getElementById('fqAbaixo75').textContent = abaixo75;
+  document.getElementById('fqAbaixo75Det').textContent = `${Math.round((abaixo75/total)*100)}% dos alunos`;
+  document.getElementById('fqPerfeita').textContent = perfeita;
+
+  // Barras por turma
+  const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
+  const CORES_SALAS = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
+  const maxFreq = 100;
+  document.getElementById('fqBarTurmas').innerHTML = SALAS.map((sala, i) => {
+    const alunos = allAlunos.filter(a => a.sala === sala);
+    if(!alunos.length) return '';
+    const mediaFreqSala = Math.round(alunos.reduce((s,a) => s+calcFreq(a), 0) / alunos.length);
+    const cor = mediaFreqSala >= 85 ? '#4ADE80' : mediaFreqSala >= 75 ? '#EAB308' : '#EF4444';
+    return `<div class="sala-bar-row">
+      <div class="sala-bar-label">${sala}</div>
+      <div class="sala-bar-track">
+        <div class="sala-bar-fill" style="width:${mediaFreqSala}%;background:${cor}">${mediaFreqSala}%</div>
+      </div>
+      <div class="sala-bar-num">${mediaFreqSala}%</div>
+    </div>`;
+  }).join('');
+
+  // Gráfico mensal
+  const labels = Object.keys(MESES);
+  const mediasMensais = labels.map(mes => {
+    const datas = MESES[mes];
+    let s=0, t=0;
+    allAlunos.forEach(a => datas.forEach(d => { t++; if(a[d.fid]!=='1') s++; }));
+    return t > 0 ? Math.round((s/t)*100) : 0;
+  });
+
+  if(window._chartMensal) window._chartMensal.destroy();
+  window._chartMensal = new Chart(document.getElementById('chartMensal'), {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'Frequência %',
+        data: mediasMensais,
+        backgroundColor: mediasMensais.map(v => v>=85?'#4ADE80':v>=75?'#EAB308':'#EF4444'),
+        borderRadius:8,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.raw}%`}} },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{family:'DM Sans',size:13},color:'#44403C'} },
+        y:{ min:0, max:100, grid:{color:'#E7E2DA'}, ticks:{font:{family:'DM Sans',size:11},color:'#78716C',callback:v=>v+'%'} }
+      }
+    }
+  });
+
+  renderAlunosCriticos();
+}
+
+function renderAlunosCriticos(){
+  const mesSel = document.getElementById('fqMesSel')?.value || 'todos';
+  const datas = mesSel === 'todos' ? DATAS : MESES[mesSel] || DATAS;
+
+  const criticos = allAlunos
+    .map(a => ({ ...a, freq: calcFreqMes(a, datas) }))
+    .filter(a => a.freq < 75)
+    .sort((a,b) => a.freq - b.freq);
+
+  if(!criticos.length){
+    document.getElementById('fqListaCriticos').innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhum aluno abaixo de 75% neste período</div>';
+    return;
+  }
+
+  document.getElementById('fqListaCriticos').innerHTML = `
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:var(--cream)">
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Nome</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Turma</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Frequência</th>
+          <th style="padding:10px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;border-bottom:1.5px solid var(--line)">Faltas</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${criticos.map(a => {
+          const faltas = datas.filter(d => a[d.fid]==='1').length;
+          const cor = a.freq < 50 ? '#991B1B' : '#B45309';
+          return `<tr style="border-bottom:1px solid var(--line)">
+            <td style="padding:11px 16px;font-size:13px;font-weight:500">${a.name}</td>
+            <td style="padding:11px 16px;font-size:13px;color:var(--muted)">${a.sala}</td>
+            <td style="padding:11px 16px;font-size:13px;font-weight:700;color:${cor}">${a.freq}%</td>
+            <td style="padding:11px 16px;font-size:13px;color:var(--muted)">${faltas} dia${faltas!==1?'s':''}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function atualizarDados(){
+  const btn = document.getElementById('btnAtualizar');
+  btn.classList.add('girando');
+  btn.disabled = true;
+  allAlunos = [];
+  allAlunosTotal = [];
+  await loadData();
+  btn.classList.remove('girando');
+  btn.disabled = false;
+}
+
 function sair(){
   token = null; allAlunos = [];
   document.getElementById('painelScreen').style.display = 'none';
@@ -692,6 +1098,20 @@ async function loadData(){
 
     console.log('Total registros recebidos:', records.length);
     if(records.length > 0) console.log('Primeiro registro:', JSON.stringify(records[0]).substring(0,200));
+    // allAlunosTotal inclui TODOS os alunos (ATIVO, TR, REM, NCOM)
+    allAlunosTotal = records.map(r => {
+      const f = r.fields || r.cellValuesByFieldId || {};
+      const gs = k => { const v=f[k]; if(!v&&v!==0) return ''; if(typeof v==='object') return v.name||''; return String(v).trim(); };
+      const name = gs('Name').replace(/\n/g,'').trim();
+      if(!name) return null;
+      const base = { name, sala: gs('SALAS'), sexo: gs('SEXO'), sed: gs('SED') };
+      DATAS.forEach(d => {
+        const v = f[d.fid] !== undefined ? f[d.fid] : (f[d.nome] !== undefined ? f[d.nome] : null);
+        base[d.fid] = v ? (typeof v==='object'?v.name||'0':String(v).trim()) : '0';
+      });
+      return base;
+    }).filter(Boolean);
+
     allAlunos = records.map(r => {
       const f = r.fields || r.cellValuesByFieldId || {};
       const gs = k => {
@@ -714,6 +1134,12 @@ async function loadData(){
       });
       return base;
     }).filter(Boolean);
+
+    // Calcular dias válidos: dias onde pelo menos 1 aluno faltou
+    window.DIAS_VALIDOS = new Set();
+    DATAS.forEach(d => {
+      if(allAlunos.some(a => a[d.fid] === '1')) DIAS_VALIDOS.add(d.fid);
+    });
 
     renderAll();
   } catch(e) {
@@ -807,11 +1233,11 @@ function atualizarKPIs(){
 function renderSemanaChart(){
   // Últimos 5 dias úteis — 13/03 a 19/03
   const semana = [
-    {label:'13/03',fid:'fld4uHPMwl3eBKGvc'},
-    {label:'16/03',fid:'fld5qQxd5WQ8VuuPZ'},
-    {label:'17/03',fid:'fldVRiTrWKfaveTvA'},
-    {label:'18/03',fid:'fldXYAdZfDsemNsav'},
-    {label:'19/03',fid:'fldcp22tZjlosokoK'},
+    {label:'23/03',fid:'fldQ5HW6CnAMEmWvf'},
+    {label:'24/03',fid:'fldxobQE4nKyzjTtk'},
+    {label:'25/03',fid:'fldzkjyEvgSRDRDWE'},
+    {label:'26/03',fid:'fldq2qFpM88m509Hb'},
+    {label:'27/03',fid:'fld2SqTBOeKkiNpPh'},
   ];
   const labels = semana.map(d => d.label);
   const faltas = semana.map(d => allAlunos.filter(a => a[d.fid] === '1').length);
