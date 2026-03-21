@@ -1169,8 +1169,14 @@ function abrirModalConsec(){
 }
 
 function downloadPdfConsec(){
-  const sub = document.getElementById('modalConsecSub').textContent;
-  const body = document.getElementById('modalConsecBody');
+  // Ler da aba Alertas (altListaConsec) ou do modal (modalConsecBody)
+  const isModal = document.getElementById('modalConsec').classList.contains('open');
+  const body = isModal
+    ? document.getElementById('modalConsecBody')
+    : document.getElementById('altListaConsec');
+  const sub = isModal
+    ? document.getElementById('modalConsecSub').textContent
+    : document.getElementById('altDiasSeguidosDet').textContent;
   const printContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Faltas Consecutivas</title>
     <style>
       *{margin:0;padding:0;box-sizing:border-box}
