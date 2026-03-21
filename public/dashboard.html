@@ -684,7 +684,7 @@ body::before {
   <div id="view-alertas" style="display:none" class="main">
     <div class="page-header">
       <div class="page-title">Alertas</div>
-      <div class="page-sub">Monitoramento de frequência crítica — v3.0 ✅</div>
+      <div class="page-sub" style="color:#C0392B;font-weight:700">⚠️ ARQUIVO CORRETO — COMPARTILHAR ATIVO</div>
     </div>
 
     <!-- KPIs -->
@@ -713,16 +713,12 @@ body::before {
     <!-- Lista 2 dias seguidos -->
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">🔴 Consecutivas</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
-            ⬇ BAIXAR PDF
-          </button>
-          <button onclick="compartilharConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
-            📤 COMPARTILHAR
-          </button>
-          <div class="panel-badge" id="altBadgeConsec">0 alunos</div>
-        </div>
+        <div class="panel-title">🔴 Faltas Consecutivas — Últimos 7 dias letivos</div>
+        <div class="panel-badge" id="altBadgeConsec">0 alunos</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;margin-top:-4px">
+        <button onclick="downloadPdfConsec()" style="background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer">⬇ BAIXAR PDF</button>
+        <button onclick="compartilharConsec()" style="background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer">📤 COMPARTILHAR</button>
       </div>
       <div id="altListaConsec"></div>
     </div>
@@ -1491,6 +1487,7 @@ function renderAlertas(){
   document.getElementById('altDiasSeguidosDet').textContent = `${consecutivos.length} aluno${consecutivos.length!==1?'s':''} — últimos 7 dias`;
   document.getElementById('altBadgeConsec').textContent = `${consecutivos.length} alunos`;
 
+  // Garantir botões BAIXAR PDF e COMPARTILHAR
   if(consecutivos.length === 0){
     document.getElementById('altListaConsec').innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhum aluno com faltas consecutivas</div>';
   } else {
