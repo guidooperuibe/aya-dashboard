@@ -516,7 +516,7 @@ body::before {
         <div class="kpi-detail" id="kpiPresentesDet">—</div>
       </div>
       <div class="kpi-card" id="cardFaltas" style="--card-color:var(--red);animation-delay:.16s;background:#C0392B;cursor:pointer;border-color:#C0392B" onclick="abrirModalFaltas()">
-        <div class="kpi-label" style="color:rgba(255,255,255,.8)"><span style="font-size:22px;vertical-align:middle;margin-right:6px;line-height:1">🔊</span>Faltas</div>
+        <div class="kpi-label" style="color:rgba(255,255,255,.8)"><span style="font-size:1.5em;vertical-align:middle;margin-right:4px">🔊</span> Faltas</div>
         <div class="kpi-value" id="kpiFaltas" style="color:#fff">—</div>
         <div class="kpi-detail" id="kpiFaltasDet" style="color:rgba(255,255,255,.7)">—</div>
       </div>
@@ -553,7 +553,13 @@ body::before {
       </div>
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title">Evolução de Faltas — Última Semana</div>
+          <div class="panel-title">Evolução de Faltas</div>
+          <select class="date-select" id="semanaSel" onchange="renderSemanaChart()">
+            <option value="0">Última semana</option>
+            <option value="1">Semana anterior</option>
+            <option value="2">2 semanas atrás</option>
+            <option value="3">3 semanas atrás</option>
+          </select>
         </div>
         <div class="chart-wrap">
           <canvas id="chartSemana"></canvas>
@@ -1575,14 +1581,25 @@ function atualizarKPIs(){
 }
 
 function renderSemanaChart(){
-  // Últimos 5 dias úteis — 13/03 a 19/03
-  const semana = [
-    {label:'23/03',fid:'fldQ5HW6CnAMEmWvf'},
-    {label:'24/03',fid:'fldxobQE4nKyzjTtk'},
-    {label:'25/03',fid:'fldzkjyEvgSRDRDWE'},
-    {label:'26/03',fid:'fldq2qFpM88m509Hb'},
-    {label:'27/03',fid:'fld2SqTBOeKkiNpPh'},
-  ];
+  // Usar apenas dias válidos (que já ocorreram)
+  const todosValidos = DATAS.filter(d => DIAS_VALIDOS && DIAS_VALIDOS.has(d.fid));
+
+  if(todosValidos.length === 0){
+    if(window._chartSemana) window._chartSemana.destroy();
+    return;
+  }
+
+  // Selecionar semana baseado no seletor
+  const semanaIdx = parseInt(document.getElementById('semanaSel')?.value || '0');
+  const fim = todosValidos.length - (semanaIdx * 5);
+  const inicio = Math.max(0, fim - 5);
+  const semana = todosValidos.slice(inicio, fim);
+
+  if(semana.length === 0){
+    if(window._chartSemana) window._chartSemana.destroy();
+    return;
+  }
+
   const labels = semana.map(d => d.label);
   const faltas = semana.map(d => allAlunos.filter(a => a[d.fid] === '1').length);
 
