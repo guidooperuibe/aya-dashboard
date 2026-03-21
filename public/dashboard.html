@@ -1168,69 +1168,45 @@ function abrirModalConsec(){
 function downloadPdfConsec(){
   const sub = document.getElementById('modalConsecSub').textContent;
   const body = document.getElementById('modalConsecBody');
-
-  const printContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Faltas Consecutivas</title>
-      <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: Arial, sans-serif; padding: 30px; color: #1C1917; }
-        .header { margin-bottom: 24px; border-bottom: 2px solid #EA580C; padding-bottom: 12px; }
-        .title { font-size: 20px; font-weight: bold; color: #EA580C; }
-        .sub { font-size: 13px; color: #78716C; margin-top: 4px; }
-        .escola { font-size: 12px; color: #78716C; margin-top: 2px; }
-        .sala-titulo { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #78716C; font-weight: bold; margin: 18px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #E7E2DA; }
-        .aluno-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #F5F0E8; font-size: 13px; gap: 10px; }
-        .aluno-nome { font-weight: 600; flex: 1; }
-        .aluno-periodo { font-size: 11px; color: #78716C; }
-        .aluno-dias { font-weight: 700; color: #EA580C; white-space: nowrap; }
-        .fone { font-size: 11px; color: #78716C; }
-        .sem-fone { font-size: 11px; color: #C0392B; }
-        .footer { margin-top: 30px; font-size: 10px; color: #78716C; text-align: right; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <div class="title">🔴 Faltas Consecutivas</div>
-        <div class="sub">${sub}</div>
-        <div class="escola">Escola Maya Alice Ekman — AYA Dashboard</div>
-      </div>
-      ${Array.from(body.querySelectorAll('.modal-sala-titulo, .modal-aluno-row')).map(el => {
-        if(el.classList.contains('modal-sala-titulo')){
-          return `<div class="sala-titulo">${el.textContent}</div>`;
-        } else {
-          const nomeEl = el.querySelector('div[style*="font-weight:600"]');
-          const periodoEl = el.querySelector('div[style*="font-size:11px"]');
-          const diasEl = el.querySelector('span[style*="font-weight:700"]');
-          const foneEl = el.querySelector('a[href*="wa.me"]');
-          const semFoneEl = el.querySelector('span[style*="C0392B"]');
-          const nome = nomeEl?.textContent || '';
-          const periodo = periodoEl?.textContent || '';
-          const dias = diasEl?.textContent || '';
-          const foneNum = foneEl ? foneEl.href.replace('https://wa.me/55','') : '';
-          const foneTexto = foneNum
-            ? `<span class="fone">📱 ${foneNum}</span>`
-            : `<span class="sem-fone">Sem número</span>`;
-          return `<div class="aluno-row">
-            <span class="aluno-nome">${nome}</span>
-            <span class="aluno-periodo">${periodo}</span>
-            <span class="aluno-dias">${dias}</span>
-            ${foneTexto}
-          </div>`;
-        }
-      }).join('')}
-      <div class="footer">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</div>
-    </body>
-    </html>`;
-
-  const win = window.open('', '_blank');
+  const printContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Faltas Consecutivas</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box}
+      body{font-family:Arial,sans-serif;padding:30px;color:#1C1917}
+      .header{margin-bottom:24px;border-bottom:2px solid #EA580C;padding-bottom:12px}
+      .title{font-size:20px;font-weight:bold;color:#EA580C}
+      .sub{font-size:13px;color:#78716C;margin-top:4px}
+      .escola{font-size:12px;color:#78716C;margin-top:2px}
+      .sala{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#78716C;font-weight:bold;margin:18px 0 6px;padding-bottom:4px;border-bottom:1px solid #E7E2DA}
+      .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F5F0E8;font-size:13px;gap:10px}
+      .nome{font-weight:600;flex:1}
+      .periodo{font-size:11px;color:#78716C}
+      .dias{font-weight:700;color:#EA580C;white-space:nowrap}
+      .fone{font-size:11px;color:#78716C}
+      .sem-fone{font-size:11px;color:#C0392B}
+      .footer{margin-top:30px;font-size:10px;color:#78716C;text-align:right}
+    </style></head><body>
+    <div class="header">
+      <div class="title">🔴 Faltas Consecutivas</div>
+      <div class="sub">${sub}</div>
+      <div class="escola">Escola Maya Alice Ekman — AYA Dashboard</div>
+    </div>
+    ${Array.from(body.querySelectorAll('.modal-sala-titulo,.modal-aluno-row')).map(el=>{
+      if(el.classList.contains('modal-sala-titulo')) return '<div class="sala">'+el.textContent+'</div>';
+      const nome = el.querySelector('div[style*="font-weight:600"]')?.textContent||'';
+      const periodo = el.querySelector('div[style*="font-size:11px"]')?.textContent||'';
+      const dias = el.querySelector('span[style*="font-weight:700"]')?.textContent||'';
+      const foneEl = el.querySelector('a[href*="wa.me"]');
+      const foneNum = foneEl ? foneEl.href.replace('https://wa.me/55','') : '';
+      const foneTexto = foneNum ? '<span class="fone">📱 '+foneNum+'</span>' : '<span class="sem-fone">Sem número</span>';
+      return '<div class="row"><span class="nome">'+nome+'</span><span class="periodo">'+periodo+'</span><span class="dias">'+dias+'</span>'+foneTexto+'</div>';
+    }).join('')}
+    <div class="footer">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</div>
+  </body></html>`;
+  const win = window.open('','_blank');
   win.document.write(printContent);
   win.document.close();
   win.focus();
-  setTimeout(() => { win.print(); }, 500);
+  setTimeout(()=>{ win.print(); },500);
 }
 
 function fecharModalConsec(){
