@@ -269,7 +269,7 @@ body::before {
   border-radius:12px; padding:22px 24px;
   animation:fadeUp .4s ease both; margin-bottom:20px;
 }
-.panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:8px; }
 .panel-title { font-size:13px; font-weight:600; color:var(--ink); }
 
 .date-select {
@@ -712,10 +712,10 @@ body::before {
 
     <!-- Lista 2 dias seguidos -->
     <div class="panel">
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
-        <div class="panel-title">🔴 Faltas Consecutivas</div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+      <div class="panel-header">
+        <div class="panel-title">🔴 Consecutivas</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
             ⬇ BAIXAR PDF
           </button>
           <button onclick="compartilharConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
