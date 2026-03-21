@@ -714,13 +714,15 @@ body::before {
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">🔴 Faltas Consecutivas — Últimos 7 dias letivos</div>
-        <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
-          ⬇ BAIXAR PDF
-        </button>
-        <button onclick="compartilharConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
-          📤 COMPARTILHAR
-        </button>
-        <div class="panel-badge" id="altBadgeConsec">0 alunos</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+            ⬇ BAIXAR PDF
+          </button>
+          <button onclick="compartilharConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+            📤 COMPARTILHAR
+          </button>
+          <div class="panel-badge" id="altBadgeConsec">0 alunos</div>
+        </div>
       </div>
       <div id="altListaConsec"></div>
     </div>
