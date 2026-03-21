@@ -722,7 +722,12 @@ body::before {
         <div class="modal-header-title">🔊 Lista de Faltas</div>
         <div class="modal-header-sub" id="modalFaltasSub">—</div>
       </div>
-      <button class="modal-close" onclick="fecharModalFaltas()">✕</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="downloadPdfFaltas()" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
+          ⬇ PDF
+        </button>
+        <button class="modal-close" onclick="fecharModalFaltas()">✕</button>
+      </div>
     </div>
     <div class="modal-body" id="modalFaltasBody"></div>
   </div>
@@ -1012,6 +1017,61 @@ function abrirModalFaltas(){
 
   document.getElementById('modalFaltasBody').innerHTML = html || '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhuma falta neste dia!</div>';
   document.getElementById('modalFaltas').classList.add('open');
+}
+
+function downloadPdfFaltas(){
+  const sub = document.getElementById('modalFaltasSub').textContent;
+  const body = document.getElementById('modalFaltasBody');
+
+  // Montar HTML para impressão
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Lista de Faltas</title>
+      <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: Arial, sans-serif; padding: 30px; color: #1C1917; }
+        .header { margin-bottom: 24px; border-bottom: 2px solid #C0392B; padding-bottom: 12px; }
+        .title { font-size: 20px; font-weight: bold; color: #C0392B; }
+        .sub { font-size: 13px; color: #78716C; margin-top: 4px; }
+        .escola { font-size: 12px; color: #78716C; margin-top: 2px; }
+        .sala-titulo { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #78716C; font-weight: bold; margin: 18px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #E7E2DA; }
+        .aluno-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #F5F0E8; font-size: 13px; }
+        .aluno-nome { font-weight: 500; }
+        .fone { font-size: 11px; color: #78716C; }
+        .sem-fone { font-size: 11px; color: #C0392B; }
+        .footer { margin-top: 30px; font-size: 10px; color: #78716C; text-align: right; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="title">🔊 Lista de Faltas</div>
+        <div class="sub">${sub}</div>
+        <div class="escola">Escola Maya Alice Ekman — AYA Dashboard</div>
+      </div>
+      ${Array.from(body.querySelectorAll('.modal-sala-titulo, .modal-aluno-row')).map(el => {
+        if(el.classList.contains('modal-sala-titulo')){
+          return `<div class="sala-titulo">${el.textContent}</div>`;
+        } else {
+          const nome = el.querySelector('span')?.textContent || '';
+          const foneEl = el.querySelector('a');
+          const semFoneEl = el.querySelector('span[style*="C0392B"]');
+          const foneNum = foneEl ? foneEl.href.replace('https://wa.me/55','') : '';
+          const foneTexto = foneNum ? `<span class="fone">📱 ${foneNum}</span>` : `<span class="sem-fone">Sem número</span>`;
+          return `<div class="aluno-row"><span class="aluno-nome">${nome}</span>${foneTexto}</div>`;
+        }
+      }).join('')}
+      <div class="footer">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</div>
+    </body>
+    </html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(printContent);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 500);
 }
 
 function fecharModalFaltas(){
