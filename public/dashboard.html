@@ -716,6 +716,9 @@ body::before {
         <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
           ⬇ BAIXAR PDF
         </button>
+                <button onclick="compartilharConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+          📤 COMPARTILHAR
+        </button>
         <div class="panel-badge" id="altBadgeConsec">0 alunos</div>
       </div>
       <div id="altListaConsec"></div>
@@ -735,6 +738,9 @@ body::before {
       <div style="display:flex;align-items:center;gap:8px">
         <button onclick="downloadPdfFaltas()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
           ⬇ BAIXAR PDF
+        </button>
+                <button onclick="compartilharFaltas()" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+          📤 COMPARTILHAR
         </button>
         <button class="modal-close" onclick="fecharModalFaltas()">✕</button>
       </div>
@@ -1033,6 +1039,67 @@ function abrirModalFaltas(){
 
   document.getElementById('modalFaltasBody').innerHTML = html || '<div style="text-align:center;padding:32px;color:var(--muted)">✅ Nenhuma falta neste dia!</div>';
   document.getElementById('modalFaltas').classList.add('open');
+}
+
+function compartilharFaltas(){
+  const fid = document.getElementById('kpiDataSel')?.value;
+  const data = DATAS.find(d => d.fid === fid);
+  const faltosos = allAlunos.filter(a => a[fid] === '1');
+  const SALAS_ORD = ['6A','6B','7A','7B','8A','8B','9A','9B'];
+
+  let texto = `🔊 *LISTA DE FALTAS — ${data?.label||''}*\n`;
+  texto += `Escola Maya Alice Ekman\n`;
+  texto += `Total: ${faltosos.length} faltosos\n\n`;
+
+  SALAS_ORD.forEach(sala => {
+    const lista = faltosos.filter(a => a.sala === sala).sort((a,b) => a.name.localeCompare(b.name));
+    if(!lista.length) return;
+    texto += `📚 *${sala}* (${lista.length} falta${lista.length>1?'s':''})\n`;
+    lista.forEach(a => {
+      const fone = (a.fone||'').replace(/\D/g,'');
+      texto += `• ${a.name}${fone ? ' — 📱 '+fone : ' — ⚠️ Sem número'}\n`;
+    });
+    texto += '\n';
+  });
+
+  texto += `_Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}_`;
+  const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
+  window.open(url, '_blank');
+}
+
+function compartilharConsec(){
+  const todosValidos = DATAS.filter(d => DIAS_VALIDOS.has(d.fid));
+  const diasOrdem = todosValidos.slice(-7);
+  const periodo = diasOrdem.length > 0 ? `${diasOrdem[0].label} → ${diasOrdem[diasOrdem.length-1].label}` : '';
+
+  const consecutivos = allAlunos.map(a => {
+    let maxConsec = 0, consec = 0, diasConsec = [], melhorDias = [];
+    diasOrdem.forEach(d => {
+      if(a[d.fid] === '1'){ consec++; diasConsec.push(d.label); if(consec > maxConsec){ maxConsec = consec; melhorDias = [...diasConsec]; } }
+      else { consec = 0; diasConsec = []; }
+    });
+    return { ...a, maxConsec, melhorDias };
+  }).filter(a => a.maxConsec >= 2).sort((a,b) => b.maxConsec - a.maxConsec || a.sala.localeCompare(b.sala));
+
+  const SALAS_ORD = ['6A','6B','7A','7B','8A','8B','9A','9B'];
+  let texto = `🔴 *FALTAS CONSECUTIVAS — ${periodo}*\n`;
+  texto += `Escola Maya Alice Ekman\n`;
+  texto += `Total: ${consecutivos.length} aluno${consecutivos.length!==1?'s':''}\n\n`;
+
+  SALAS_ORD.forEach(sala => {
+    const lista = consecutivos.filter(a => a.sala === sala);
+    if(!lista.length) return;
+    texto += `📚 *${sala}*\n`;
+    lista.forEach(a => {
+      const fone = (a.fone||'').replace(/\D/g,'');
+      texto += `• ${a.name} — ${a.maxConsec} dias (${a.melhorDias[0]} → ${a.melhorDias[a.melhorDias.length-1]})${fone ? ' — 📱 '+fone : ' — ⚠️ Sem número'}\n`;
+    });
+    texto += '\n';
+  });
+
+  texto += `_Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}_`;
+  const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
+  window.open(url, '_blank');
 }
 
 function downloadPdfFaltas(){
