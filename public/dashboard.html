@@ -798,6 +798,7 @@ const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 const CORES = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
 let token = null, allAlunos = [], allAlunosTotal = [], chartGenero = null, chartFreq = null;
+let DIAS_VALIDOS = new Set();
 
 function srv(){ return localStorage.getItem('aya_srv') || DEFAULT_SRV; }
 
@@ -1486,7 +1487,7 @@ async function loadData(){
     }).filter(Boolean);
 
     // Calcular dias válidos: dias onde pelo menos 1 aluno faltou
-    window.DIAS_VALIDOS = new Set();
+    DIAS_VALIDOS = new Set();
     DATAS.forEach(d => {
       if(allAlunos.some(a => a[d.fid] === '1')) DIAS_VALIDOS.add(d.fid);
     });
