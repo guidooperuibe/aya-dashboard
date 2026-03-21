@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- AYA Dashboard v2.1 -->
+<!-- AYA Dashboard v2.2 - 20260321161238 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -712,21 +712,10 @@ body::before {
 
     <!-- Lista 2 dias seguidos -->
     <div class="panel">
-<<<<<<< HEAD
       <div class="panel-header">
-<<<<<<< Updated upstream
         <div class="panel-title">🔴 Consecutivas</div>
-=======
-        <div class="panel-title">🔴 Faltas Consecutivas — Últimos 7 dias</div>
->>>>>>> Stashed changes
         <div style="display:flex;align-items:center;gap:8px">
           <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
-=======
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div class="panel-title">🔴 Faltas Consecutivas</div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <button onclick="downloadPdfConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#1C1917;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
->>>>>>> 97bc17b31bd442e0ff0af512cebd842dc0c7737b
             ⬇ BAIXAR PDF
           </button>
           <button onclick="compartilharConsec()" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
@@ -1121,7 +1110,7 @@ function downloadPdfFaltas(){
   // Montar HTML para impressão
   const printContent = `
     <!DOCTYPE html>
-<!-- AYA Dashboard v2.1 -->
+<!-- AYA Dashboard v2.2 - 20260321161238 -->
     <html>
     <head>
       <meta charset="UTF-8">
@@ -1258,7 +1247,7 @@ function downloadPdfConsec(){
     ? document.getElementById('modalConsecSub').textContent
     : document.getElementById('altDiasSeguidosDet').textContent;
   const printContent = `<!DOCTYPE html>
-<!-- AYA Dashboard v2.1 --><html><head><meta charset="UTF-8"><title>Faltas Consecutivas</title>
+<!-- AYA Dashboard v2.2 - 20260321161238 --><html><head><meta charset="UTF-8"><title>Faltas Consecutivas</title>
     <style>
       *{margin:0;padding:0;box-sizing:border-box}
       body{font-family:Arial,sans-serif;padding:30px;color:#1C1917}
