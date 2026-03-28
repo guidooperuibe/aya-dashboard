@@ -324,16 +324,43 @@ body::before {
   }
 
   /* Responsivo */
+/* Barra de navegação inferior mobile */
+.mobile-nav {
+  display:none;
+  position:fixed; bottom:0; left:0; right:0;
+  height:60px; background:var(--ink);
+  border-top:1px solid rgba(255,255,255,.1);
+  z-index:9999;
+  justify-content:space-around; align-items:center;
+  padding:0 8px;
+}
+@media(min-width:701px){
+  .mobile-nav { display:none !important; }
+}
+.mobile-nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:3px; background:none; border:none;
+  color:rgba(255,255,255,.5); cursor:pointer; padding:6px 2px;
+  font-family:'DM Sans',sans-serif; font-size:9px; letter-spacing:.5px;
+  text-transform:uppercase; transition:color .2s;
+}
+.mobile-nav-btn.active { color:#C9A84C; }
+.mobile-nav-btn span.icon { font-size:18px; }
+
 @media(max-width:700px){
   .login-left { display:none; }
   .login-right { width:100%; padding:48px 24px; }
   .login-div { display:none; }
   .login-container { width:100%; min-height:100vh; }
   .sidebar { display:none; }
-  .main { margin-left:0; padding:76px 16px 32px; }
+  .main { margin-left:0; padding:72px 16px 80px; }
   .kpi-row { grid-template-columns:1fr 1fr; }
   .grid2 { grid-template-columns:1fr; }
+  .mobile-nav { display:flex; }
+  .hamburger { display:none; }
 }
+
+.hamburger { display:none; }
   /* Modal faltas */
   .modal-overlay {
     position:fixed; inset:0; background:rgba(0,0,0,.5);
@@ -470,6 +497,9 @@ body::before {
 <div id="painelScreen">
 
   <div class="topbar">
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="topbar-brand">AYA Dashboard</div>
     <div class="topbar-dot"></div>
     <div class="topbar-user" id="topUser"></div>
@@ -477,7 +507,8 @@ body::before {
   <button class="topbar-sair" onclick="sair()">Sair</button>
   </div>
 
-  <div class="sidebar">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+  <div class="sidebar" id="sidebar">
     <div class="nav-label">Menu</div>
     <button class="nav-item active" id="nav-painel" onclick="showView('painel')">
       <span class="nav-icon">📊</span> Painel
@@ -674,6 +705,7 @@ body::before {
           <option value="todos">Todos os meses</option>
           <option value="FEVEREIRO">Fevereiro</option>
           <option value="MARÇO">Março</option>
+          <option value="ABRIL">Abril</option>
         </select>
       </div>
       <div id="fqListaCriticos"></div>
@@ -809,6 +841,27 @@ const DATAS = [
   {label:'27/03',fid:'fld2SqTBOeKkiNpPh',nome:'27/3'},
   {label:'30/03',fid:'fld6oWAEa749orm56',nome:'30/3'},
   {label:'31/03',fid:'fldc0N8Hz48X72KwM',nome:'31/3'},
+  {label:'01/04',fid:'fldYMf8GDW2hLZBcy',nome:'1/4'},
+  {label:'02/04',fid:'fldCfdzYtblxsd850',nome:'2/4'},
+  {label:'06/04',fid:'fldsigL2TXBUvvIp4',nome:'6/4'},
+  {label:'07/04',fid:'fldQ24CbhQq9rAZ2d',nome:'7/4'},
+  {label:'08/04',fid:'fldKjVka4qNIohVRW',nome:'8/4'},
+  {label:'09/04',fid:'fldKu8iT6Mdgq6bOL',nome:'9/4'},
+  {label:'10/04',fid:'fldk4E6VE3phmsnmi',nome:'10/4'},
+  {label:'13/04',fid:'flduhzpQcXvXsccXb',nome:'13/4'},
+  {label:'14/04',fid:'flddPJkzVdgaKQORB',nome:'14/4'},
+  {label:'15/04',fid:'fldZNweCKTd3FVTsO',nome:'15/4'},
+  {label:'16/04',fid:'fldijuSqz9VuWRA2r',nome:'16/4'},
+  {label:'17/04',fid:'fldI5A9atvinggOAi',nome:'17/4'},
+  {label:'20/04',fid:'fldk6QBNNFrRQAXeP',nome:'20/4'},
+  {label:'21/04',fid:'fldPebI9HMyCjWOGg',nome:'21/4'},
+  {label:'22/04',fid:'fldf7ZtvvXcN6YWPI',nome:'22/4'},
+  {label:'23/04',fid:'fldU59AndzLao7jcD',nome:'23/4'},
+  {label:'24/04',fid:'fldYG3N3GT76Ipwc0',nome:'24/4'},
+  {label:'27/04',fid:'fldfdH91YgDifXgKp',nome:'27/4'},
+  {label:'28/04',fid:'fld8vkDqv7ehzq88I',nome:'28/4'},
+  {label:'29/04',fid:'fldOgJElVtGBzUgu6',nome:'29/4'},
+  {label:'30/04',fid:'flddYsUr3HUKuzjnr',nome:'30/4'},
 ];
 const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 const CORES = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
@@ -839,6 +892,7 @@ async function doLogin(){
     document.getElementById('topUser').textContent = d.nome;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('painelScreen').style.display = 'block';
+    document.getElementById('mobileNav').style.display = 'flex';
     loadData();
   } catch(e) {
     err.textContent = e.message || 'Erro ao conectar.';
@@ -851,12 +905,30 @@ async function doLogin(){
 
 const CORES_TURMA = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
 
+function toggleMenu(){
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+}
+
 function showView(v){
   ['painel','turmas','alunos','frequencia','alertas'].forEach(id => {
     const el = document.getElementById('view-'+id);
     if(el) el.style.display = v===id ? (id==='painel'?'':'block') : 'none';
   });
+  // Fechar menu no mobile ao clicar numa aba
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if(sidebar && sidebar.classList.contains('open')){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  }
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  // Atualizar mobile nav
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  const mBtn = document.getElementById('mnav-'+v);
+  if(mBtn) mBtn.classList.add('active');
   const nb = document.getElementById('nav-'+v);
   if(nb) nb.classList.add('active');
   if(v==='turmas') renderTurmas();
@@ -1314,6 +1386,19 @@ const MESES = {
     {label:'26/03',fid:'fldq2qFpM88m509Hb'},{label:'27/03',fid:'fld2SqTBOeKkiNpPh'},
     {label:'30/03',fid:'fld6oWAEa749orm56'},{label:'31/03',fid:'fldc0N8Hz48X72KwM'},
   ],
+  'ABRIL': [
+    {label:'01/04',fid:'fldYMf8GDW2hLZBcy'},{label:'02/04',fid:'fldCfdzYtblxsd850'},
+    {label:'06/04',fid:'fldsigL2TXBUvvIp4'},{label:'07/04',fid:'fldQ24CbhQq9rAZ2d'},
+    {label:'08/04',fid:'fldKjVka4qNIohVRW'},{label:'09/04',fid:'fldKu8iT6Mdgq6bOL'},
+    {label:'10/04',fid:'fldk4E6VE3phmsnmi'},{label:'13/04',fid:'flduhzpQcXvXsccXb'},
+    {label:'14/04',fid:'flddPJkzVdgaKQORB'},{label:'15/04',fid:'fldZNweCKTd3FVTsO'},
+    {label:'16/04',fid:'fldijuSqz9VuWRA2r'},{label:'17/04',fid:'fldI5A9atvinggOAi'},
+    {label:'20/04',fid:'fldk6QBNNFrRQAXeP'},{label:'21/04',fid:'fldPebI9HMyCjWOGg'},
+    {label:'22/04',fid:'fldf7ZtvvXcN6YWPI'},{label:'23/04',fid:'fldU59AndzLao7jcD'},
+    {label:'24/04',fid:'fldYG3N3GT76Ipwc0'},{label:'27/04',fid:'fldfdH91YgDifXgKp'},
+    {label:'28/04',fid:'fld8vkDqv7ehzq88I'},{label:'29/04',fid:'fldOgJElVtGBzUgu6'},
+    {label:'30/04',fid:'flddYsUr3HUKuzjnr'},
+  ],
 };
 
 function renderFrequencia(){
@@ -1554,6 +1639,8 @@ async function atualizarDados(){
 function sair(){
   token = null; allAlunos = [];
   document.getElementById('painelScreen').style.display = 'none';
+  const mn = document.getElementById('mobileNav');
+  if(mn) mn.style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('loginUser').value = '';
   document.getElementById('loginPwd').value = '';
@@ -1793,5 +1880,23 @@ function renderFreqChart(){
   });
 }
 </script>
+  <!-- Navegação Mobile - fora do painelScreen -->
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-btn active" id="mnav-painel" onclick="showView('painel')">
+      <span class="icon">📊</span>Painel
+    </button>
+    <button class="mobile-nav-btn" id="mnav-turmas" onclick="showView('turmas')">
+      <span class="icon">🏫</span>Turmas
+    </button>
+    <button class="mobile-nav-btn" id="mnav-alunos" onclick="showView('alunos')">
+      <span class="icon">👥</span>Alunos
+    </button>
+    <button class="mobile-nav-btn" id="mnav-frequencia" onclick="showView('frequencia')">
+      <span class="icon">📅</span>Freq.
+    </button>
+    <button class="mobile-nav-btn" id="mnav-alertas" onclick="showView('alertas')">
+      <span class="icon">🔴</span>Alertas
+    </button>
+  </nav>
 </body>
 </html>
