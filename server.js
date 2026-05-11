@@ -134,10 +134,33 @@ const USERS_FALLBACK = [
   { usuario: "prof60",   senha: "9bVxGnX6", perfil: "professores", nome: "Professor 60", ativo: true },
 ];
 
-// Cache de usuários (recarrega do Airtable a cada 5 minutos se tabela existir)
+// ─── CACHE DE USUÁRIOS ───────────────────────────────────────────────────────
 let usersCache = null;
 let usersCacheTime = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+// ─── CACHE DE TABELAS (reduz chamadas ao Airtable) ───────────────────────────
+// Cada entrada: "tableId:offset" → { data, time }
+// TTL configurável via env TABLE_CACHE_TTL_MS (padrão: 4 horas)
+const TABLE_CACHE_TTL = parseInt(process.env.TABLE_CACHE_TTL_MS || String(4 * 60 * 60 * 1000));
+const tableCache = new Map();
+
+function getTableCache(tableId, offset) {
+  const key = `${tableId}:${offset || ''}`;
+  const entry = tableCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.time > TABLE_CACHE_TTL) {
+    tableCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setTableCache(tableId, offset, data) {
+  const key = `${tableId}:${offset || ''}`;
+  tableCache.set(key, { data, time: Date.now() });
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 async function getUsers() {
   const now = Date.now();
@@ -217,7 +240,7 @@ function auth(req, res, next) {
   }
 }
 
-// GET /api/data/:tableId — proxy seguro para o Airtable
+// GET /api/data/:tableId — proxy seguro para o Airtable (com cache)
 app.get('/api/data/:tableId', auth, async (req, res) => {
   const { tableId } = req.params;
   const { offset } = req.query;
@@ -235,8 +258,17 @@ app.get('/api/data/:tableId', auth, async (req, res) => {
     return res.status(403).json({ error: 'Tabela não permitida.' });
   }
 
+  // Serve do cache se disponível
+  const cached = getTableCache(tableId, offset);
+  if (cached) {
+    res.set('X-Cache', 'HIT');
+    return res.json(cached);
+  }
+
   const url = new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableId)}`);
   url.searchParams.set('pageSize', '100');
+  url.searchParams.set('cellFormat', 'json');
+  url.searchParams.set('returnFieldsByFieldId', 'true');
   if (offset) url.searchParams.set('offset', offset);
 
   try {
@@ -244,10 +276,37 @@ app.get('/api/data/:tableId', auth, async (req, res) => {
       headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
     });
     const data = await r.json();
+    if (r.status === 200) {
+      setTableCache(tableId, offset, data);
+      console.log(`📦 Cache gravado: ${tableId}:${offset || 'primeira página'}`);
+    }
+    res.set('X-Cache', 'MISS');
     res.status(r.status).json(data);
   } catch (e) {
     res.status(500).json({ error: 'Erro ao acessar Airtable.' });
   }
+});
+
+// POST /api/cache/clear — limpa o cache das tabelas (exige autenticação)
+app.post('/api/cache/clear', auth, (req, res) => {
+  const size = tableCache.size;
+  tableCache.clear();
+  console.log(`🗑️  Cache limpo por ${req.user.usuario} (${size} entradas removidas)`);
+  res.json({ ok: true, cleared: size });
+});
+
+// GET /api/cache/stats — mostra estado atual do cache
+app.get('/api/cache/stats', auth, (req, res) => {
+  const now = Date.now();
+  const entries = [];
+  for (const [key, val] of tableCache) {
+    entries.push({
+      key,
+      age_min: Math.round((now - val.time) / 60000),
+      expires_min: Math.round((TABLE_CACHE_TTL - (now - val.time)) / 60000),
+    });
+  }
+  res.json({ entries, ttl_horas: TABLE_CACHE_TTL / 3600000, total: entries.length });
 });
 
 // Health check
