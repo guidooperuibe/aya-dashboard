@@ -324,7 +324,7 @@ body::before {
   }
 
   /* Responsivo */
-/* Barra de navegação inferior mobile */
+/* Barra de navegação inferior */
 .mobile-nav {
   display:none;
   position:fixed; bottom:0; left:0; right:0;
@@ -333,9 +333,6 @@ body::before {
   z-index:9999;
   justify-content:space-around; align-items:center;
   padding:0 8px;
-}
-@media(min-width:701px){
-  .mobile-nav { display:none !important; }
 }
 .mobile-nav-btn {
   flex:1; display:flex; flex-direction:column; align-items:center;
@@ -347,6 +344,7 @@ body::before {
 .mobile-nav-btn.active { color:#C9A84C; }
 .mobile-nav-btn span.icon { font-size:18px; }
 
+@media(min-width:701px){ .mobile-nav { display:none !important; } }
 @media(max-width:700px){
   .login-left { display:none; }
   .login-right { width:100%; padding:48px 24px; }
@@ -354,10 +352,9 @@ body::before {
   .login-container { width:100%; min-height:100vh; }
   .sidebar { display:none; }
   .main { margin-left:0; padding:72px 16px 80px; }
+  .hamburger { display:none; }
   .kpi-row { grid-template-columns:1fr 1fr; }
   .grid2 { grid-template-columns:1fr; }
-  .mobile-nav { display:flex; }
-  .hamburger { display:none; }
 }
 
 .hamburger { display:none; }
@@ -862,6 +859,30 @@ const DATAS = [
   {label:'28/04',fid:'fld8vkDqv7ehzq88I',nome:'28/4'},
   {label:'29/04',fid:'fldOgJElVtGBzUgu6',nome:'29/4'},
   {label:'30/04',fid:'flddYsUr3HUKuzjnr',nome:'30/4'},
+  {label:'04/05',fid:'4/5',  nome:'4/5'},
+  {label:'05/05',fid:'5/5',  nome:'5/5'},
+  {label:'06/05',fid:'6/5',  nome:'6/5'},
+  {label:'07/05',fid:'7/5',  nome:'7/5'},
+  {label:'08/05',fid:'8/5',  nome:'8/5'},
+  {label:'11/05',fid:'11/5', nome:'11/5'},
+  {label:'12/05',fid:'12/5', nome:'12/5'},
+  {label:'13/05',fid:'13/5', nome:'13/5'},
+  {label:'14/05',fid:'14/5', nome:'14/5'},
+  {label:'15/05',fid:'15/5', nome:'15/5'},
+  {label:'18/05',fid:'18/5', nome:'18/5'},
+  {label:'19/05',fid:'19/5', nome:'19/5'},
+  {label:'20/05',fid:'20/5', nome:'20/5'},
+  {label:'21/05',fid:'21/5', nome:'21/5'},
+  {label:'22/05',fid:'22/5', nome:'22/5'},
+  {label:'25/05',fid:'25/5', nome:'25/5'},
+  {label:'26/05',fid:'26/5', nome:'26/5'},
+  {label:'27/05',fid:'27/5', nome:'27/5'},
+  {label:'28/05',fid:'28/5', nome:'28/5'},
+  {label:'29/05',fid:'29/5', nome:'29/5'},
+  {label:'01/06',fid:'1/6',  nome:'1/6'},
+  {label:'02/06',fid:'2/6',  nome:'2/6'},
+  {label:'03/06',fid:'3/6',  nome:'3/6'},
+  {label:'08/06',fid:'8/6',  nome:'8/6'},
 ];
 const SALAS = ['6A','6B','7A','7B','8A','8B','9A','9B'];
 const CORES = ['#3B82F6','#22C55E','#EF4444','#EAB308','#8B5CF6','#F97316','#14B8A6','#6366F1'];
@@ -1398,6 +1419,22 @@ const MESES = {
     {label:'24/04',fid:'fldYG3N3GT76Ipwc0'},{label:'27/04',fid:'fldfdH91YgDifXgKp'},
     {label:'28/04',fid:'fld8vkDqv7ehzq88I'},{label:'29/04',fid:'fldOgJElVtGBzUgu6'},
     {label:'30/04',fid:'flddYsUr3HUKuzjnr'},
+  ],
+  'MAIO': [
+    {label:'04/05',fid:'4/5'},{label:'05/05',fid:'5/5'},
+    {label:'06/05',fid:'6/5'},{label:'07/05',fid:'7/5'},
+    {label:'08/05',fid:'8/5'},{label:'11/05',fid:'11/5'},
+    {label:'12/05',fid:'12/5'},{label:'13/05',fid:'13/5'},
+    {label:'14/05',fid:'14/5'},{label:'15/05',fid:'15/5'},
+    {label:'18/05',fid:'18/5'},{label:'19/05',fid:'19/5'},
+    {label:'20/05',fid:'20/5'},{label:'21/05',fid:'21/5'},
+    {label:'22/05',fid:'22/5'},{label:'25/05',fid:'25/5'},
+    {label:'26/05',fid:'26/5'},{label:'27/05',fid:'27/5'},
+    {label:'28/05',fid:'28/5'},{label:'29/05',fid:'29/5'},
+  ],
+  'JUNHO': [
+    {label:'01/06',fid:'1/6'},{label:'02/06',fid:'2/6'},
+    {label:'03/06',fid:'3/6'},{label:'08/06',fid:'8/6'},
   ],
 };
 
