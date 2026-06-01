@@ -267,8 +267,6 @@ app.get('/api/data/:tableId', auth, async (req, res) => {
 
   const url = new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableId)}`);
   url.searchParams.set('pageSize', '100');
-  url.searchParams.set('cellFormat', 'json');
-  url.searchParams.set('returnFieldsByFieldId', 'true');
   if (offset) url.searchParams.set('offset', offset);
 
   try {
