@@ -167,7 +167,9 @@ async function getUsers() {
   if (usersCache && (now - usersCacheTime) < CACHE_TTL) {
     return usersCache;
   }
-  // Tenta carregar da tabela USUARIOS no Airtable
+  // Tenta carregar usuários extras da tabela USUARIOS no Airtable
+  // e MESCLA com a lista local (Airtable tem prioridade em caso de conflito)
+  let airtableUsers = [];
   try {
     const res = await fetch(
       `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/USUARIOS?pageSize=200`,
@@ -176,24 +178,28 @@ async function getUsers() {
     if (res.ok) {
       const data = await res.json();
       if (data.records && data.records.length > 0) {
-        usersCache = data.records.map(r => ({
+        airtableUsers = data.records.map(r => ({
           usuario: (r.fields['USUARIO'] || '').toLowerCase().trim(),
           senha:   (r.fields['SENHA']   || '').trim(),
           perfil:  (r.fields['PERFIL']  || '').toLowerCase().trim(),
           nome:    (r.fields['NOME']    || ''),
-          ativo:   r.fields['ATIVO'] !== false, // checkbox: se vazio = ativo
+          ativo:   r.fields['ATIVO'] !== false,
         })).filter(u => u.usuario && u.senha);
-        usersCacheTime = now;
-        console.log(`✅ ${usersCache.length} usuários carregados do Airtable`);
-        return usersCache;
+        console.log(`✅ ${airtableUsers.length} usuários extras carregados do Airtable`);
       }
     }
   } catch (e) {
-    console.log('ℹ️  Tabela USUARIOS não encontrada no Airtable, usando lista local.');
+    console.log('ℹ️  Tabela USUARIOS não acessível, usando apenas lista local.');
   }
-  // Fallback para lista local
-  usersCache = USERS_FALLBACK;
+  // Mescla: Airtable sobrepõe lista local em caso de mesmo usuario
+  const airtableLogins = new Set(airtableUsers.map(u => u.usuario));
+  const merged = [
+    ...airtableUsers,
+    ...USERS_FALLBACK.filter(u => !airtableLogins.has(u.usuario)),
+  ];
+  usersCache = merged;
   usersCacheTime = now;
+  console.log(`👥 Total de usuários disponíveis: ${merged.length}`);
   return usersCache;
 }
 
